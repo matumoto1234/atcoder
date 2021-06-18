@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
+#include <atcoder/lazysegtree.hpp>
+using namespace atcoder;
 
 // {{{
 
@@ -46,10 +48,47 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+struct S {
+	int x;
+};
+
+struct F {
+	int update;
+};
+
+S op(S a, S b) { return S{max(a.x, b.x)}; }
+S e() { return S{-INF32}; }
+F id() { return F{INF32}; }
+S mapping(F f, S a) {
+	if (f.update==id().update){
+		return a;
+	}
+	return S{f.update};
+}
+F composition(F f, F g) {
+	if (f.update == id().update){
+		return g;
+	}
+	return f;
+}
+
 int main() {
 	cin.tie(nullptr);
 	ios::sync_with_stdio(false);
 
-	int n;
-	cin>>n;
+	int w,n;
+	cin>>w>>n;
+	vector<S> temp(w,S{0});
+	lazy_segtree<S,op,e,F,mapping,composition,id> seg(temp);
+	rep(i,n){
+		int l,r;
+		cin>>l>>r;
+		l--,r--;
+		S ma=seg.prod(l,r+1);
+		cout<<ma.x+1<<newl;
+
+		F query=F{ma.x+1};
+		seg.apply(l,r+1,query);
+	}
 }
