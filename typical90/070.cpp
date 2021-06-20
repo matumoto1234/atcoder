@@ -43,32 +43,27 @@ constexpr int mod998244353 = 998244353;
 constexpr int mod1000000007 = (int)1e9 + 7;
 constexpr char newl = '\n';
 // clang-format on
+
 // }}}
 
-
 int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
 
-  int h,w;
-  cin>>h>>w;
-  auto a=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    cin>>a[i][j];
-  }
+	int n;
+	cin>>n;
+	vector<ll> x(n),y(n);
+	rep(i,n){
+		cin>>x[i]>>y[i];
+	}
 
-  vector<int> row(h,0),col(w,0);
-  rep(i,h) rep(j,w){
-    row[i]+=a[i][j];
-    col[j]+=a[i][j];
-  }
+	sort(x.rbegin(),x.rend());
+	sort(y.rbegin(),y.rend());
 
-  auto b=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    b[i][j]=row[i]+col[j]-a[i][j];
-  }
-
-  rep(i,h){
-    cout<<b[i]<<newl;
-  }
+	int medx=x[n/2],medy=y[n/2];
+	ll ans=0;
+	rep(i,n){
+		ans+=abs(medx-x[i])+abs(medy-y[i]);
+	}
+	cout<<ans<<endl;
 }

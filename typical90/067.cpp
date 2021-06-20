@@ -43,32 +43,40 @@ constexpr int mod998244353 = 998244353;
 constexpr int mod1000000007 = (int)1e9 + 7;
 constexpr char newl = '\n';
 // clang-format on
+
 // }}}
 
 
+ll convert_base(ll x, ll from, ll to){
+	ll sum=0,dig=1;
+	while(x>0){
+		sum+=x%10*dig;
+		x/=10;
+		dig*=from;
+	}
+
+	debug(sum);
+
+	ll res=0;
+	while(sum>0){
+		res*=to;
+		res+=sum%to;
+		sum/=to;
+	}
+	return res;
+}
+
+
 int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
 
-  int h,w;
-  cin>>h>>w;
-  auto a=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    cin>>a[i][j];
-  }
-
-  vector<int> row(h,0),col(w,0);
-  rep(i,h) rep(j,w){
-    row[i]+=a[i][j];
-    col[j]+=a[i][j];
-  }
-
-  auto b=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    b[i][j]=row[i]+col[j]-a[i][j];
-  }
-
-  rep(i,h){
-    cout<<b[i]<<newl;
-  }
+	ll n,k;
+	cin>>n>>k;
+	rep(i,k){
+		string s=to_string(convert_base(n,8,9));
+		for(char &c:s) if(c=='8') c='5';
+		n=stoll(s);
+	}
+	cout<<n<<endl;
 }

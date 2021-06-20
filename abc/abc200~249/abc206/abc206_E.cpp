@@ -43,32 +43,36 @@ constexpr int mod998244353 = 998244353;
 constexpr int mod1000000007 = (int)1e9 + 7;
 constexpr char newl = '\n';
 // clang-format on
+
 // }}}
 
+vector<ll> solve(ll n){
+	vector<ll> ps(2000000,0);
+	for(ll i=n;i>=1;i--){
+		ll sum=n/i-1;
+		for(ll j=i+i;j<=n;j+=i){
+			ll m=n/i-j/i-n/j-1;
+			sum+=m;
+		}
+		ps[i]=sum;
+	}
+	return ps;
+}
 
 int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
 
-  int h,w;
-  cin>>h>>w;
-  auto a=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    cin>>a[i][j];
-  }
 
-  vector<int> row(h,0),col(w,0);
-  rep(i,h) rep(j,w){
-    row[i]+=a[i][j];
-    col[j]+=a[i][j];
-  }
+	ll l,r;
+	cin>>l>>r;
+	auto ps1=solve(l-1);
+	auto ps2=solve(r);
 
-  auto b=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    b[i][j]=row[i]+col[j]-a[i][j];
-  }
-
-  rep(i,h){
-    cout<<b[i]<<newl;
-  }
+	ll ans=0;
+	range(i,1,20){
+		debug(i,ps1[i],ps2[i]);
+		ans+=ps2[i]-ps1[i];
+	}
+	cout<<ans<<endl;
 }

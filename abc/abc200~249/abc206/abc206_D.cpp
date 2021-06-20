@@ -43,32 +43,89 @@ constexpr int mod998244353 = 998244353;
 constexpr int mod1000000007 = (int)1e9 + 7;
 constexpr char newl = '\n';
 // clang-format on
+
 // }}}
 
+template <typename T1, typename T2>
+T1 ceil_division(T1 a, T2 b) {
+	return (a + (b - 1)) / b;
+}
+
+struct union_find {
+	int cnt;
+	vector<int> siz, par;
+	union_find(int N) : cnt(N), siz(N, 1), par(N) {
+		iota(par.begin(), par.end(), 0);
+	}
+
+	int root(int x) {
+		if ( x == par[x] ) return x;
+		return par[x] = root(par[x]);
+	}
+
+	int group_count() { return cnt; }
+
+	int size(int x) { return siz[root(x)]; }
+
+	bool same(int x, int y) { return root(x) == root(y); }
+
+	void merge(int x, int y) {
+		x = root(x);
+		y = root(y);
+		if ( x == y ) return;
+		if ( siz[x] < siz[y] ) swap(x, y);
+		siz[x] += siz[y];
+		par[y] = x;
+		cnt--;
+	}
+
+	// Θ(NlogN)
+	// 2つのunion_findでi番目の頂点と同じ連結成分であるものの個数(i番目の頂点を含む)
+	vector<int> connect_count(union_find tree) {
+		map<pair<int, int>, int> mp;
+
+		int N = par.size();
+		for ( int i = 0; i < N; i++ ) {
+			pair<int, int> p = make_pair(root(i), tree.root(i));
+			mp[p]++;
+		}
+
+		vector<int> res(N);
+		for ( int i = 0; i < N; i++ ) {
+			pair<int, int> p = make_pair(root(i), tree.root(i));
+			res[i] = mp[p];
+		}
+		return res;
+	}
+};
 
 int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
 
-  int h,w;
-  cin>>h>>w;
-  auto a=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    cin>>a[i][j];
-  }
+	int n;
+	cin>>n;
+	vector<int> as(n);
+	for(auto &a:as) cin>>a;
 
-  vector<int> row(h,0),col(w,0);
-  rep(i,h) rep(j,w){
-    row[i]+=a[i][j];
-    col[j]+=a[i][j];
-  }
+	const int MAX = 1e6;
+	union_find uf(MAX);
+	vector<int> fronts,backs;
+	rep(i,n/2){
+		fronts.emplace_back(as[i]);
+	}
+	rrange(i,ceil_division(n,2),n){
+		backs.emplace_back(as[i]);
+	}
 
-  auto b=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    b[i][j]=row[i]+col[j]-a[i][j];
-  }
-
-  rep(i,h){
-    cout<<b[i]<<newl;
-  }
+	int ans=0;
+	rep(i,fronts.size()){
+		if(uf.same(fronts[i],backs[i])) continue;
+		if(fronts[i]!=backs[i]){
+			uf.merge(fronts[i],backs[i]);
+			ans++;
+			continue;
+		}
+	}
+	cout<<ans<<endl;
 }

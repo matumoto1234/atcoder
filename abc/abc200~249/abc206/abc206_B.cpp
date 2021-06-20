@@ -43,32 +43,25 @@ constexpr int mod998244353 = 998244353;
 constexpr int mod1000000007 = (int)1e9 + 7;
 constexpr char newl = '\n';
 // clang-format on
+
 // }}}
 
-
 int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
 
-  int h,w;
-  cin>>h>>w;
-  auto a=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    cin>>a[i][j];
-  }
-
-  vector<int> row(h,0),col(w,0);
-  rep(i,h) rep(j,w){
-    row[i]+=a[i][j];
-    col[j]+=a[i][j];
-  }
-
-  auto b=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    b[i][j]=row[i]+col[j]-a[i][j];
-  }
-
-  rep(i,h){
-    cout<<b[i]<<newl;
-  }
+	ll n;
+	cin>>n;
+	ll sum=0;
+	if(n==1){
+		cout<<1<<endl;
+		return 0;
+	}
+	for(ll i=1;i<n;i++){
+		sum+=i;
+		if(sum>=n){
+			cout<<i<<endl;
+			break;
+		}
+	}
 }

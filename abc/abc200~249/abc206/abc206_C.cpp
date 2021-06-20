@@ -43,32 +43,41 @@ constexpr int mod998244353 = 998244353;
 constexpr int mod1000000007 = (int)1e9 + 7;
 constexpr char newl = '\n';
 // clang-format on
+
 // }}}
 
 
+template <typename T>
+map<T, int> counter(const vector<T> &vs) {
+	map<T, int> res;
+	for ( T v : vs ) res[v]++;
+	return res;
+}
+
+template <typename T>
+T binomial(T n, T r) {
+	T res = 1;
+	for ( T i = 0; i < r; i++ ) {
+		res *= n - i;
+		res /= i + 1;
+	}
+	return res;
+}
+
 int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
 
-  int h,w;
-  cin>>h>>w;
-  auto a=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    cin>>a[i][j];
-  }
-
-  vector<int> row(h,0),col(w,0);
-  rep(i,h) rep(j,w){
-    row[i]+=a[i][j];
-    col[j]+=a[i][j];
-  }
-
-  auto b=make_vector(h,w,0);
-  rep(i,h) rep(j,w){
-    b[i][j]=row[i]+col[j]-a[i][j];
-  }
-
-  rep(i,h){
-    cout<<b[i]<<newl;
-  }
+	int n;
+	cin>>n;
+	vector<int> as(n);
+	for(auto &a:as) cin>>a;
+	auto mp=counter(as);
+	ll ans=0;
+	rep(i,n){
+		int a=as[i];
+		ans+=n-(i+1)-(mp[a]-1);
+		mp[a]--;
+	}
+	cout<<ans<<endl;
 }
