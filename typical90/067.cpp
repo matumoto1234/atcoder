@@ -47,23 +47,16 @@ constexpr char newl = '\n';
 // }}}
 
 
-ll convert_base(ll x, ll from, ll to){
-	ll sum=0,dig=1;
-	while(x>0){
-		sum+=x%10*dig;
-		x/=10;
-		dig*=from;
+ll base8_to_long(ll n){
+	ll res=0,x=1,digit=0;
+	vector<ll> vs;
+	while(n>0){
+		vs.emplace_back(n%8);
+		n/=8;
+		digit++;
 	}
 
-	debug(sum);
-
-	ll res=0;
-	while(sum>0){
-		res*=to;
-		res+=sum%to;
-		sum/=to;
-	}
-	return res;
+	
 }
 
 
@@ -73,10 +66,4 @@ int main() {
 
 	ll n,k;
 	cin>>n>>k;
-	rep(i,k){
-		string s=to_string(convert_base(n,8,9));
-		for(char &c:s) if(c=='8') c='5';
-		n=stoll(s);
-	}
-	cout<<n<<endl;
 }
