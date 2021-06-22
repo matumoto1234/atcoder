@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
 // {{{
 
 // clang-format off
@@ -48,86 +47,151 @@ constexpr char newl = '\n';
 // }}}
 
 template <typename T>
-T to_decimal(vector<T> n, T b){
-	T res=0,x=1;
-	for(int i=n.size()-1;i>=0;i--,x*=b){
-		res+=x*(n[i]);
-	}
-	return res;
+vector<T> to_base(T n, T b) {
+  if ( n == 0 || b <= 1 ) return vector<T>{ 0 };
+  vector<T> res;
+  for ( ; n > 0; n /= b ) {
+    res.emplace_back(n % b);
+  }
+  reverse(res.begin(), res.end());
+  return res;
 }
 
+// from-ary n -> to-ary n
 template <typename T>
-vector<T> to_base(T n,T b){
-	if(n==0 || b<=1) return vector<T>{0};
-	vector<T> res;
-	for(;n>0;n/=b){
-		res.emplace_back(n%b);
-	}
-	reverse(res.begin(),res.end());
-	return res;
+vector<T> convert_base(vector<T> n, T from, T to) {
+  auto to_base = [&](T n, T b) {
+    if ( n == 0 || b <= 1 ) return vector<T>{ 0 };
+    vector<T> res;
+    for ( ; n > 0; n /= b ) {
+      res.emplace_back(n % b);
+    }
+    reverse(res.begin(), res.end());
+    return res;
+  };
+
+  auto to_decimal = [&](vector<T> n, T b) {
+    T res = 0, x = 1;
+    for ( int i = n.size() - 1; i >= 0; i--, x *= b ) {
+      res += x * (n[i]);
+    }
+    return res;
+  };
+
+  T temp = to_decimal(n, from);
+  return to_base(temp, to);
 }
 
-template <typename T>
-vector<T> convert_base(vector<T> n,T from,T to){
-	T temp=to_decimal(n,from);
-	return to_base(temp,to);
-}
+class i128 {
+private:
+  __int128_t v;
 
-template <typename T>
-T parse(string s){
-	T res=0;
-	for(char c : s){
-		if(isdigit(c)) res=res*10+(c-'0');
-	}
-	if(s[0]=='-') res*=-1;
-	return res;
-}
+public:
 
-ostream &operator<<(ostream &os, __int128_t v){
-	// if(!ostream::sentry(os)) return os;
-	char buf[64];
-	char *d=end(buf);
-	__uint128_t tmp;
-	if(v<0) tmp=-v;
-	else tmp=v;
+	i128() {}
+	i128(const long long &a) { v = a; }
+	i128(const string &s) { parse(s); }
 
-	do{
-		d--;
-		*d=char(tmp%10 + '0');
-		tmp/=10;
-	}while(tmp);
-	if(v<0){
-		d--;
-		*d='-';
-	}
-	int len=end(buf)-d;
-	if(os.rdbuf()->sputn(d,len)!=len){
-		os.setstate(ios_base::badbit);
-	}
-	return os;
-}
+	long long long_val() { return (long long)v; }
+  __int128_t val() { return v; }
+  __int128_t abs() { return v < 0 ? -v : v; }
 
-using i128 = __int128;
+	void set(const long long &a) { v = a; }
+
+  void parse(const string &s) {
+		v = 0;
+    for ( char c : s ) {
+      if ( isdigit(c) ) v = v * 10 + (c - '0');
+    }
+    if ( s[0] == '-' ) v *= -1;
+  }
+
+  // clang-format off
+  i128 operator+(const i128 &a) { return v + a.v; }
+  i128 operator-(const i128 &a) { return v - a.v; }
+  i128 operator*(const i128 &a) { return v * a.v; }
+  i128 operator/(const i128 &a) { return v / a.v; }
+  i128 operator%(const i128 &a) { return v % a.v; }
+  void operator+=(const i128 &a) { v += a.v; }
+  void operator-=(const i128 &a) { v -= a.v; }
+  void operator*=(const i128 &a) { v *= a.v; }
+  void operator/=(const i128 &a) { v /= a.v; }
+  void operator%=(const i128 &a) { v %= a.v; }
+
+  template <typename T> i128 operator+(const T &a) { i128 res = *this; res.v += a; return res; }
+  template <typename T> i128 operator-(const T &a) { i128 res = *this; res.v -= a; return res; }
+  template <typename T> i128 operator*(const T &a) { i128 res = *this; res.v *= a; return res; }
+  template <typename T> i128 operator/(const T &a) { i128 res = *this; res.v /= a; return res; }
+  template <typename T> i128 operator%(const T &a) { i128 res = *this; res.v %= a; return res; }
+  template <typename T> void operator+=(const T &a) { v += a; }
+  template <typename T> void operator-=(const T &a) { v -= a; }
+  template <typename T> void operator*=(const T &a) { v *= a; }
+  template <typename T> void operator/=(const T &a) { v /= a; }
+  template <typename T> void operator%=(const T &a) { v %= a; }
+
+  template <typename T> i128 operator-() { i128 res = *this; res.v *= -1; return res; }
+
+  bool operator<(const i128 &a) { return v < a.v; }
+  bool operator>(const i128 &a) { return v > a.v; }
+  bool operator<=(const i128 &a) { return v <= a.v; }
+  bool operator>=(const i128 &a) { return v >= a.v; }
+  bool operator==(const i128 &a) { return v == a.v; }
+  bool operator!=(const i128 &a) { return v != a.v; }
+
+  template <typename T> bool operator<(const T &a) { return v < a; }
+  template <typename T> bool operator>(const T &a) { return v > a; }
+  template <typename T> bool operator<=(const T &a) { return v <= a; }
+  template <typename T> bool operator>=(const T &a) { return v >= a; }
+  template <typename T> bool operator==(const T &a) { return v == a; }
+  template <typename T> bool operator!=(const T &a) { return v != a; }
+  // clang-format on
+
+
+
+  friend istream &operator>>(istream &is, i128 &v) {
+    string s;
+    is >> s;
+    v.parse(s);
+    return is;
+  }
+
+  friend ostream &operator<<(ostream &os, const i128 &v) {
+    if ( !ostream::sentry(os) ) return os;
+    char buf[64];
+    char *d = end(buf);
+    __uint128_t tmp = (v.v < 0 ? -v.v : v.v);
+
+    do {
+      d--;
+      *d = char(tmp % 10 + '0');
+      tmp /= 10;
+    } while ( tmp );
+    if ( v.v < 0 ) {
+      d--;
+      *d = '-';
+    }
+    int len = end(buf) - d;
+    if ( os.rdbuf()->sputn(d, len) != len ) { os.setstate(ios_base::badbit); }
+    return os;
+  }
+};
 
 int main() {
-	cin.tie(nullptr);
-	ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  ios::sync_with_stdio(false);
 
-	string s;
-	ll k;
-	cin>>s>>k;
+  i128 n;
+  ll k;
+  cin >> n >> k;
 
-	i128 n;
-	n=parse<i128>(s);
+  auto vs = to_base<i128>(n, 10);
+  rep(i, k) {
+    vs = convert_base<i128>(vs, 8, 9);
+    for ( auto &v : vs ) {
+      if ( v == 8 ) v = 5;
+    }
+  }
 
-	auto vs=to_base<ull>(n,10);
-	rep(i,k){
-		vs=convert_base<ull>(vs,8,9);
-		for(auto &v:vs){
-			if(v==8) v=5;
-		}
-	}
-
-	for(auto v:vs) cout<<v;
-	cout<<endl;
+  for ( auto v : vs ) cout << v;
+  cout << endl;
 }
