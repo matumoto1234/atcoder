@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
 // {{{
 
 // clang-format off
@@ -47,87 +46,47 @@ constexpr char newl = '\n';
 
 // }}}
 
-template <typename T>
-T to_decimal(vector<T> n, T b){
-	T res=0,x=1;
-	for(int i=n.size()-1;i>=0;i--,x*=b){
-		res+=x*(n[i]);
-	}
-	return res;
+bool isRange(int y,int x,int h,int w){
+	return 0<=y&&y<h&&0<=x&&x<w;
 }
 
-template <typename T>
-vector<T> to_base(T n,T b){
-	if(n==0 || b<=1) return vector<T>{0};
-	vector<T> res;
-	for(;n>0;n/=b){
-		res.emplace_back(n%b);
+int h,w;
+int sy,sx,ans;
+vector<string> cs;
+vector<vector<bool>> used;
+void iddfs(int y,int x, int depth){
+	used[y][x]=true;
+	rep(i,4){
+		int ny=y+dy[i],nx=x+dx[i];
+		if(!isRange(ny,nx,h,w)) continue;
+		if(cs[ny][nx]=='#') continue;
+		if(ny==sy && nx==sx) {
+			chmax(ans,depth);
+			continue;
+		}
+		if(used[ny][nx]) continue;
+
+		
+		iddfs(ny,nx,depth+1);
 	}
-	reverse(res.begin(),res.end());
-	return res;
 }
-
-template <typename T>
-vector<T> convert_base(vector<T> n,T from,T to){
-	T temp=to_decimal(n,from);
-	return to_base(temp,to);
-}
-
-template <typename T>
-T parse(string s){
-	T res=0;
-	for(char c : s){
-		if(isdigit(c)) res=res*10+(c-'0');
-	}
-	if(s[0]=='-') res*=-1;
-	return res;
-}
-
-ostream &operator<<(ostream &os, __int128_t v){
-	// if(!ostream::sentry(os)) return os;
-	char buf[64];
-	char *d=end(buf);
-	__uint128_t tmp;
-	if(v<0) tmp=-v;
-	else tmp=v;
-
-	do{
-		d--;
-		*d=char(tmp%10 + '0');
-		tmp/=10;
-	}while(tmp);
-	if(v<0){
-		d--;
-		*d='-';
-	}
-	int len=end(buf)-d;
-	if(os.rdbuf()->sputn(d,len)!=len){
-		os.setstate(ios_base::badbit);
-	}
-	return os;
-}
-
-using i128 = __int128;
 
 int main() {
 	cin.tie(nullptr);
 	ios::sync_with_stdio(false);
 
-	string s;
-	ll k;
-	cin>>s>>k;
-
-	i128 n;
-	n=parse<i128>(s);
-
-	auto vs=to_base<ull>(n,10);
-	rep(i,k){
-		vs=convert_base<ull>(vs,8,9);
-		for(auto &v:vs){
-			if(v==8) v=5;
-		}
+	cin>>h>>w;
+	cs.resize(h);
+	for(auto &c:cs){
+		cin>>c;
 	}
 
-	for(auto v:vs) cout<<v;
-	cout<<endl;
+	rep(i,h) rep(j,w){
+		if(cs[i][j]=='#') continue;
+		used.assign(h,vector<bool>(w,false));
+		sy=i,sx=j;
+		iddfs(sy,sx,1);
+	}
+	if(ans<=2) ans=-1;
+	cout<<ans<<endl;
 }

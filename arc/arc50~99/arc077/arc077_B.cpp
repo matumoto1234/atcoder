@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-
+#include <atcoder/modint.hpp>
 
 // {{{
 
@@ -47,87 +47,64 @@ constexpr char newl = '\n';
 
 // }}}
 
-template <typename T>
-T to_decimal(vector<T> n, T b){
-	T res=0,x=1;
-	for(int i=n.size()-1;i>=0;i--,x*=b){
-		res+=x*(n[i]);
-	}
-	return res;
-}
+using mint = atcoder::modint1000000007;
+class ModFactorial {
+public:
+  ModFactorial(int N) : _fact(N + 1), _invfact(N + 1) {
+    _fact[0] = 1;
+    for ( int i = 1; i <= N; i++ )
+      _fact[i] = _fact[i - 1] * i;
+    _invfact[N] = 1 / _fact[N];
+    for ( int i = N - 1; i >= 0; i-- )
+      _invfact[i] = _invfact[i + 1] * (i + 1);
+  }
 
-template <typename T>
-vector<T> to_base(T n,T b){
-	if(n==0 || b<=1) return vector<T>{0};
-	vector<T> res;
-	for(;n>0;n/=b){
-		res.emplace_back(n%b);
-	}
-	reverse(res.begin(),res.end());
-	return res;
-}
+  mint fact(int k) { return _fact[k]; }
+  mint invfact(int k) { return _invfact[k]; }
+  mint inv(int k) { return mint(k).inv(); }
 
-template <typename T>
-vector<T> convert_base(vector<T> n,T from,T to){
-	T temp=to_decimal(n,from);
-	return to_base(temp,to);
-}
+  mint permutation(int n, int r) { return _fact[n] * _invfact[n - r]; }
+  mint combination(int n, int r) {
+    return _fact[n] * _invfact[r] * _invfact[n - r];
+  }
+  mint homogeneous(int n, int r) { return combination(n + r - 1, r); }
 
-template <typename T>
-T parse(string s){
-	T res=0;
-	for(char c : s){
-		if(isdigit(c)) res=res*10+(c-'0');
-	}
-	if(s[0]=='-') res*=-1;
-	return res;
-}
+private:
+  vector<mint> _fact, _invfact;
+};
 
-ostream &operator<<(ostream &os, __int128_t v){
-	// if(!ostream::sentry(os)) return os;
-	char buf[64];
-	char *d=end(buf);
-	__uint128_t tmp;
-	if(v<0) tmp=-v;
-	else tmp=v;
-
-	do{
-		d--;
-		*d=char(tmp%10 + '0');
-		tmp/=10;
-	}while(tmp);
-	if(v<0){
-		d--;
-		*d='-';
-	}
-	int len=end(buf)-d;
-	if(os.rdbuf()->sputn(d,len)!=len){
-		os.setstate(ios_base::badbit);
-	}
-	return os;
-}
-
-using i128 = __int128;
+ModFactorial mod(200000);
 
 int main() {
-	cin.tie(nullptr);
-	ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  ios::sync_with_stdio(false);
 
-	string s;
-	ll k;
-	cin>>s>>k;
+  int n;
+  cin >> n;
+  vector<int> as(n + 1);
+  for ( auto &a : as )
+    cin >> a;
 
-	i128 n;
-	n=parse<i128>(s);
+  int idx1 = 0, idx2 = 0;
+  map<int, int> mpcnt;
+  rep(i, as.size()) {
+    int a = as[i];
+    if ( mpcnt[a] != 0 ) {
+      idx1 = mpcnt[a] - 1;
+      idx2 = i;
+      break;
+    }
+    mpcnt[a] = i + 1;
+  }
 
-	auto vs=to_base<ull>(n,10);
-	rep(i,k){
-		vs=convert_base<ull>(vs,8,9);
-		for(auto &v:vs){
-			if(v==8) v=5;
-		}
-	}
+  int len = idx1 + n - idx2;
 
-	for(auto v:vs) cout<<v;
-	cout<<endl;
+  // debug(len);
+
+  range(i, 1, n + 1 + 1) {
+    mint ans = mod.combination(n + 1, i);
+    // debug(i,ans.val());
+    if ( len >= i - 1 ) ans -= mod.combination(len, i - 1);
+    cout << ans.val() << newl;
+  }
 }
