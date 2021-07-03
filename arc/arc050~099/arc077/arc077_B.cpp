@@ -47,64 +47,60 @@ constexpr char newl = '\n';
 
 // }}}
 
+
 using mint = atcoder::modint1000000007;
-class ModFactorial {
+class ModFactorial{
 public:
-  ModFactorial(int N) : _fact(N + 1), _invfact(N + 1) {
-    _fact[0] = 1;
-    for ( int i = 1; i <= N; i++ )
-      _fact[i] = _fact[i - 1] * i;
-    _invfact[N] = 1 / _fact[N];
-    for ( int i = N - 1; i >= 0; i-- )
-      _invfact[i] = _invfact[i + 1] * (i + 1);
+  ModFactorial(int N):_fact(N+1),_invfact(N+1){
+    _fact[0]=1;
+    for(int i=1;i<=N;i++) _fact[i]=_fact[i-1]*i;
+    _invfact[N]=1/_fact[N];
+    for(int i=N-1;i>=0;i--) _invfact[i]=_invfact[i+1]*(i+1);
   }
 
-  mint fact(int k) { return _fact[k]; }
-  mint invfact(int k) { return _invfact[k]; }
-  mint inv(int k) { return mint(k).inv(); }
+  mint fact(int k){ return _fact[k]; }
+  mint invfact(int k){ return _invfact[k]; }
+  mint inv(int k){ return mint(k).inv(); }
 
-  mint permutation(int n, int r) { return _fact[n] * _invfact[n - r]; }
-  mint combination(int n, int r) {
-    return _fact[n] * _invfact[r] * _invfact[n - r];
-  }
-  mint homogeneous(int n, int r) { return combination(n + r - 1, r); }
+  mint permutation(int n,int r){ return _fact[n]*_invfact[n-r]; }
+  mint combination(int n,int r){ return _fact[n]*_invfact[r]*_invfact[n-r]; }
+  mint homogeneous(int n,int r){ return combination(n+r-1,r); }
 
 private:
-  vector<mint> _fact, _invfact;
+  vector<mint> _fact,_invfact;
 };
 
-ModFactorial mod(200000);
+ModFactorial mod(1000000);
 
 int main() {
   cin.tie(nullptr);
   ios::sync_with_stdio(false);
 
   int n;
-  cin >> n;
-  vector<int> as(n + 1);
-  for ( auto &a : as )
-    cin >> a;
+  cin>>n;
+  vector<int> as(n+1);
+  for(auto &a:as) cin>>a;
 
-  int idx1 = 0, idx2 = 0;
-  map<int, int> mpcnt;
-  rep(i, as.size()) {
-    int a = as[i];
-    if ( mpcnt[a] != 0 ) {
-      idx1 = mpcnt[a] - 1;
-      idx2 = i;
+  int first=0,second=0;
+  vector<int> idx(n+1,-1);
+  rep(i,n+1){
+    int a=as[i];
+    if(idx[a]!=-1){
+      first=idx[a];
+      second=i;
       break;
     }
-    mpcnt[a] = i + 1;
+    idx[a]=i;
   }
 
-  int len = idx1 + n - idx2;
+  int len=first + (n-second);
+  // debug(first,second,len);
 
-  // debug(len);
-
-  range(i, 1, n + 1 + 1) {
-    mint ans = mod.combination(n + 1, i);
-    // debug(i,ans.val());
-    if ( len >= i - 1 ) ans -= mod.combination(len, i - 1);
-    cout << ans.val() << newl;
+  range(k,1,n+1+1){
+    mint ans=mod.combination(n+1,k);
+    if(len>=k-1){
+      ans-=mod.combination(len,k-1);
+    }
+    cout<<ans.val()<<newl;
   }
 }

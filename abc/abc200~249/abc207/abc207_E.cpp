@@ -4,8 +4,6 @@ using namespace std;
 // {{{
 
 // clang-format off
-#define rep(i, n) for (int i = 0; i < (int)(n); i += 1)
-#define rrep(i, n) for (int i = (int)(n)-1; i >= 0; i -= 1)
 #define range(i, l, r) for ( int i = (int)(l); i < (int)(r); (i) += 1 )
 #define rrange(i, l, r) for ( int i = (int)(r)-1; i >= (int)(l); (i) -= 1 )
 #define debug(...) debug_func(#__VA_ARGS__, __VA_ARGS__)
@@ -47,109 +45,33 @@ constexpr char newl = '\n';
 // }}}
 
 
-// void naive(int n,vector<ll> as){
-//   rep(i,1<<(n-1)){
-//     vector<ll> sums;
-//     ll sum=0;
-//     rep(j,n-1){
-//       sum+=as[j];
-//       if(i>>j&1){
-//         sums.emplace_back(sum);
-//         sum=0;
-//       }
-//     }
-//     sum+=as.back();
-//     sums.emplace_back(sum);
-//     sum=0;
-
-//     bool valid=true;
-//     rep(j,sums.size()){
-//       if(sums[j]%(j+1)){
-//         valid=false;
-//         break;
-//       }
-//     }
-//     if(!valid) continue;
-//     bitset<10> bit(i);
-//     debug(i,bit,sums);
-//   }
-// }
-
-
-template <typename T>
-struct cumulative_sum_mod {
-  vector<T> dat;
-  int MOD;
-  cumulative_sum_mod(int n,int _MOD) : dat(n + 1), MOD(_MOD) {}
-
-  void set(int k, T x) { dat[k + 1] = x; }
-
-  void build() {
-    for ( int i = 0; i < (int)dat.size(); i++ ) {
-      dat[i + 1] += dat[i];
-      dat[i + 1] %= MOD;
-    }
-  }
-
-  // [l,r)
-  T query(int l, int r) {
-    return (T)(((dat[r] - dat[l]) % MOD + MOD ) % MOD);
-  }
-};
-
-
-int n;
-int ans=0;
-void dfs(int mod,int idx,vector<vector<P>> &sections){
-  if(idx==n){
-    ans++;
-    return;
-  }
-
-  rep(i,sections[mod].size()){
-    auto [l,r]=sections[mod][i];
-    if(l==idx){
-      dfs(mod+1,r,sections);
-    }
-  }
-}
-
 
 int main() {
   cin.tie(nullptr);
   ios::sync_with_stdio(false);
 
+  int n;
   cin>>n;
   vector<ll> as(n);
-  for(auto &a:as)cin>>a;
+  for(auto &a:as) cin>>a;
 
-  // use [i,n]
-  vector<vector<P>> sections(n+5);
-  // sections.resize(n+1);
-  
-  // mod i
-  range(i,2,n+1){
-    vector<ll> bs=as;
-    for(ll &b:bs) b%=i;
-    cumulative_sum_mod<ll> sum(bs.size(),i);
-    rep(j,bs.size()) sum.set(bs[j],j);
+  vector<vector<ll>> dp(n+1,vector<ll>(n+1,0));
+  dp[0][0]=1;
+  range(i,1,n+1){
+    auto bs=as;
+    for(auto &b:bs) b%=i;
 
-    sum.build();
-
-    range(j,i-1,n){
-      range(k,j+1,n+1){
-        if(sum.query(j,k)==0){
-          P p = make_pair(j,k);
-          sections[i].push_back(p);
-        }
-      }
+    vector<ll> sum(n+1,0);
+    vector<ll> vs(n+1,0);
+    range(j,0,n){
+      sum[j+1]+=bs[j]+sum[j];
+      sum[j+1]%=i;
+      dp[i][j]+=dp[i-1][sum[j+1]];
+      // vs[sum[j+1]]+=dp[i-1][sum[j+1]];
     }
   }
 
-  range(i,0,sections[2].size()){
-    auto [l,r]=sections[2][i];
-    dfs(3,r,sections);
+  range(i,0,n+1){
+    debug(i,dp[i]);
   }
-
-  cout<<ans<<endl;
 }

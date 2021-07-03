@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
+#include <atcoder/modint.hpp>
 
 // {{{
 
@@ -47,27 +48,52 @@ constexpr char newl = '\n';
 // }}}
 
 
+using mint = atcoder::modint1000000007;
+class ModFactorial{
+public:
+	ModFactorial(int N):_fact(N+1),_invfact(N+1){
+		_fact[0]=1;
+		for(int i=1;i<=N;i++) _fact[i]=_fact[i-1]*i;
+		_invfact[N]=1/_fact[N];
+		for(int i=N-1;i>=0;i--) _invfact[i]=_invfact[i+1]*(i+1);
+	}
+
+	mint fact(int k){ return _fact[k]; }
+	mint invfact(int k){ return _invfact[k]; }
+	mint inv(int k){ return mint(k).inv(); }
+
+	mint permutation(int n,int r){ return _fact[n]*_invfact[n-r]; }
+	mint combination(int n,int r){ return _fact[n]*_invfact[r]*_invfact[n-r]; }
+	mint homogeneous(int n,int r){ return combination(n+r-1,r); }
+
+private:
+	vector<mint> _fact,_invfact;
+};
+
+ModFactorial mod(1000000);
+
+template <typename T>
+T ceil_division(T n, T d) {
+	assert(d != 0);
+	return n / d + (((n ^ d) >= 0) && (n % d));
+}
 
 int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
 
-  int n;
-  cin>>n;
-  vector<vector<int>> as(n,vector<int>(5));
-  rep(i,n){
-    rep(j,5){
-      cin>>as[i][j];
-    }
-  }
+	int n,m;
+	cin>>n>>m;
 
-  rep(i,n){
-    rep(j,n){
-      if(i==j) continue;
-      rep(k,n){
-        if(i==k || j==k) continue;
-        as[i],as[j],as[k];
-      }
-    }
-  }
+	mint ans=1;
+	if(ceil_division(n+m,2)<max(n,m) || (n+m)/2 < min(n,m)){
+		cout<<0<<endl;
+		return 0;
+	}
+
+	ans*=mod.permutation(ceil_division(n+m,2),max(n,m));
+	ans*=mod.permutation((n+m)/2,min(n,m));
+	if((n+m)/2 >= max(n,m)) ans*=2;
+
+	cout<<ans.val()<<endl;
 }

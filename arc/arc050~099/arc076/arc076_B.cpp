@@ -47,27 +47,93 @@ constexpr char newl = '\n';
 // }}}
 
 
+struct union_find {
+	int cnt;
+	vector<int> siz, par;
+	union_find(int N) : cnt(N), siz(N, 1), par(N) {
+		iota(par.begin(), par.end(), 0);
+	}
+
+	int root(int x) {
+		if ( x == par[x] ) return x;
+		return par[x] = root(par[x]);
+	}
+
+	int group_count() { return cnt; }
+
+	int size(int x) { return siz[root(x)]; }
+
+	bool same(int x, int y) { return root(x) == root(y); }
+
+	void merge(int x, int y) {
+		x = root(x);
+		y = root(y);
+		if ( x == y ) return;
+		if ( siz[x] < siz[y] ) swap(x, y);
+		siz[x] += siz[y];
+		par[y] = x;
+		cnt--;
+	}
+
+	// Θ(NlogN)
+	// 2つのunion_findでi番目の頂点と同じ連結成分であるものの個数(i番目の頂点を含む)
+	vector<int> connect_count(union_find tree) {
+		map<pair<int, int>, int> mp;
+
+		int N = par.size();
+		for ( int i = 0; i < N; i++ ) {
+			pair<int, int> p = make_pair(root(i), tree.root(i));
+			mp[p]++;
+		}
+
+		vector<int> res(N);
+		for ( int i = 0; i < N; i++ ) {
+			pair<int, int> p = make_pair(root(i), tree.root(i));
+			res[i] = mp[p];
+		}
+		return res;
+	}
+};
+
 
 int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
 
-  int n;
-  cin>>n;
-  vector<vector<int>> as(n,vector<int>(5));
-  rep(i,n){
-    rep(j,5){
-      cin>>as[i][j];
-    }
-  }
+	int n;
+	cin>>n;
+	vector<P> xs(n),ys(n);
+	rep(i,n){
+		auto &[x,x_i]=xs[i];
+		auto &[y,y_i]=ys[i];
+		cin>>x>>y;
+		x_i=y_i=i;
+	}
 
-  rep(i,n){
-    rep(j,n){
-      if(i==j) continue;
-      rep(k,n){
-        if(i==k || j==k) continue;
-        as[i],as[j],as[k];
-      }
-    }
-  }
+	sort(xs.begin(),xs.end());
+	sort(ys.begin(),ys.end());
+
+	vector<pair<int,P>> edges;
+
+	range(i,1,n){
+		auto [px,px_i]=xs[i-1];
+		auto [x,x_i]=xs[i];
+		edges.emplace_back(abs(px-x),make_pair(px_i,x_i));
+	}
+	range(i,1,n){
+		auto [py,py_i]=ys[i-1];
+		auto [y,y_i]=ys[i];
+		edges.emplace_back(abs(py-y),make_pair(py_i,y_i));
+	}
+
+	union_find uf(n);
+	sort(edges.begin(),edges.end());
+	ll ans=0;
+	for(auto [cost, edge]:edges){
+		auto [from,to]=edge;
+		if(uf.same(from,to)) continue;
+		uf.merge(from,to);
+		ans+=cost;
+	}
+	cout<<ans<<endl;
 }
