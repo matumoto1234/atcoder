@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
+#include <atcoder/modint>
+using mint = atcoder::modint1000000007;
 
 // {{{
 
@@ -46,11 +48,56 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+ll digit(ll n){
+  ll res=0;
+  while(n>0){
+    n/=10;
+    res++;
+  }
+  return res;
+}
+
+template <typename T>
+T power(T a, T e, T p = 0) {
+  if ( p == 0 ) p = numeric_limits<T>::max();
+  if ( p <= 1 ) return 0;
+  T res = 1;
+  while ( e > 0 ) {
+    if ( e & 1 ) res = (res * a) % p;
+    a = (a * a) % p;
+    e >>= 1;
+  }
+  return res;
+}
+
+// 1からnまでの数
+// log10(n)*n
+// 1桁ごとにnを分けて足していく?
+// 12345 -> 5桁がi ∈ [1, 2345+1]個 -> 5 * (1から2345+1の和)
+// 9999 -> 4桁が999+1個
+// 999 -> 3桁が99+1個
+// 99 -> 2桁が9+1個
+// 9 -> 1桁が9個
+mint solve(ll n){
+  if(n<10){
+    return mint((n+1)*n/2);
+  }
+  ll dig=digit(n);
+  ll p=power<ll>(10,dig-1);
+  mint rem=mint(n)*(n+1)/2;
+  rem-=mint(p-1)*(p-1+1)/2;
+  rem*=dig;
+  return rem+solve(p-1);
+}
+
+
 int main() {
   cin.tie(nullptr);
   ios::sync_with_stdio(false);
 
-  int l,r;
+  ll l,r;
   cin>>l>>r;
-  
+  mint ans=solve(r)-solve(l-1);
+  cout<<ans.val()<<endl;
 }
