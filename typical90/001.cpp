@@ -42,6 +42,8 @@ constexpr int mod1000000007 = (int)1e9 + 7;
 constexpr char newl = '\n';
 // clang-format on
 
+
+
 int main() {
   cin.tie(nullptr);
   ios::sync_with_stdio(false);
