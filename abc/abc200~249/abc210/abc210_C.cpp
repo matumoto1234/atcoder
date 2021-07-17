@@ -56,29 +56,23 @@ int main() {
   cin>>cs;
 
   int type=0;
-  queue<int> q;
   map<int,int> cnt;
   range(i,k){
     if(cnt[cs[i]]==0) type++;
     cnt[cs[i]]++;
-    q.push(cs[i]);
   }
 
   int ans=type;
 
   range(i,k,n){
     int pre=cs[i-k];
-
     cnt[pre]--;
     if(cnt[pre]==0) type--;
-    q.pop();
 
     int c=cs[i];
     if(cnt[c]==0) type++;
     cnt[c]++;
-    q.push(c);
 
-    // debug(i,cs[i],cnt[cs[i]],type,ans);
     chmax(ans,type);
   }
   cout<<ans<<endl;
