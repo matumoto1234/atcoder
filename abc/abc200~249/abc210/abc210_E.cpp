@@ -55,10 +55,25 @@ int main() {
   vector<Pll> ca(m);
   for(auto &[c,a]:ca){
     cin>>a>>c;
-    a--;
   }
 
   sort(ca.begin(),ca.end());
 
-  
+  ll ans=0;
+  range(i,ca.size()){
+    auto [c,a]=ca[i];
+    // a*x = 0 (mod n)を満たす最小のxがstep数
+    // a*x = lcm(a,n)
+    // a*x = a*n/gcd(a,n)
+    // x = n/gcd(a,n)
+    // step数はどの頂点から出発しても同じなので、n/stepで残る頂点数になる
+    int d=gcd(a,n);
+    int step=n/d;
+    int nv=n/step;
+    ans+=c*nv*(step-1);
+    n=nv;
+    if(n==1) break;
+  }
+  if(n!=1) ans=-1;
+  cout<<ans<<endl;
 }
