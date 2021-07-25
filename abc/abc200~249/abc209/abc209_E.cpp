@@ -44,6 +44,29 @@ constexpr char newl = '\n';
 
 // }}}
 
+template <typename T>
+T power(T a, T e, T p = 0) {
+  if ( p == 0 ) p = numeric_limits<T>::max();
+  if ( p <= 1 ) return 0;
+  T res = 1;
+  while ( e > 0 ) {
+    if ( e & 1 ) res = (res * a) % p;
+    a = (a * a) % p;
+    e >>= 1;
+  }
+  return res;
+}
+
+int to_v(string s){
+  int res=0;
+  range(i,s.size()){
+    res+=power(26,i)*(s[i]-'a');
+  }
+  return res;
+}
+
+constexpr int V = 500000;
+vector<vector<int>> G(V);
 
 
 int main() {
@@ -52,4 +75,8 @@ int main() {
 
   int n;
   cin>>n;
+  vector<string> ss(n);
+  for(auto &s:ss) cin>>s;
+
+  
 }

@@ -1,11 +1,19 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+// {{{
+
 // clang-format off
-#define rep(i, n) for (int i = 0; i < (int)(n); i += 1)
-#define rrep(i, n) for (int i = (int)(n)-1; i >= 0; i -= 1)
-#define range(i, l, r) for ( int i = (int)(l); i < (int)(r); (i) += 1 )
-#define rrange(i, l, r) for ( int i = (int)(r)-1; i >= (int)(l); (i) -= 1 )
+#define _over_load(_1,_2,_3,_4,NAME,...) NAME
+#define range(...) _over_load(__VA_ARGS__, range4, range3, range2)(__VA_ARGS__)
+#define range2(i, r) for ( int i = 0; i < (int)(r); (i) += 1)
+#define range3(i, l, r) for ( int i = (int)(l); i < (int)(r); (i) += 1)
+#define range4(i, l, r, inc) for ( int i = (int)(l); i < (int)(r); (i) += (inc))
+#define rrange(...) _over_load(__VA_ARGS__, rrange4, rrange3, rrange2)(__VA_ARGS__)
+#define rrange2(i, r) for ( int i = (int)(r) - 1; i >= 0; (i) -= 1)
+#define rrange3(i, l, r) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= 1)
+#define rrange4(i, l, r, inc) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= inc)
 #define debug(...) debug_func(#__VA_ARGS__, __VA_ARGS__)
 template <typename T, typename... T2> void debug_func(string_view name, const T &a, T2 &&...rest) { stack<char> bs; string_view lbs = "({[<"; string_view rbs = ")}]>"; int end = name.size(); for ( int i = 0; i < (int)name.size(); i++ ) { if ( lbs.find(name[i]) != string::npos ) { bs.push(name[i]); } if ( rbs.find(name[i]) != string::npos ) { if ( !bs.empty() ) { bs.pop(); } } if ( name[i] == ',' && bs.empty() ) { end = i; break; } } cerr << name.substr(0, end) << ":" << a; if constexpr ( sizeof...(rest) == 0 ) { cerr << endl; } else { cerr << ' '; debug_func(name.substr(name.find_first_not_of(' ', end + 1)), forward<T2>(rest)...); } }
 template <typename T> vector<T> make_vector(size_t a, T b) { return vector<T>(a, b); }
@@ -19,16 +27,8 @@ template <typename T> ostream &operator<<(ostream &os, stack<T> v) { if(!v.empty
 template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
 template <typename T> ostream &operator<<(ostream &os, const deque<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
 template <typename T> ostream &operator<<(ostream &os, const set<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
-template <typename T> void operator+=(vector<T> &vs, T x) { for ( T &v : vs ) v += x; }
-template <typename T> void operator-=(vector<T> &vs, T x) { for ( T &v : vs ) v -= x; }
-template <typename T> void operator*=(vector<T> &vs, T x) { for ( T &v : vs ) v *= x; }
-template <typename T> void operator/=(vector<T> &vs, T x) { for ( T &v : vs ) v /= x; }
-template <typename T> void operator%=(vector<T> &vs, T x) { for ( T &v : vs ) v %= x; }
-template <typename T> vector<T> operator+(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v += x; return res; }
-template <typename T> vector<T> operator-(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v -= x; return res; }
-template <typename T> vector<T> operator*(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v *= x; return res; }
-template <typename T> vector<T> operator/(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v /= x; return res; }
-template <typename T> vector<T> operator%(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v %= x; return res; }
+template <typename T1, typename T2> istream &operator>>(istream &is, pair<T1, T2> &p) { is >> p.first >> p.second; return is; }
+template <typename T> istream &operator>>(istream &is, vector<T> &v) { for (T &in : v) is >> in; return is; }
 using ull = unsigned long long;
 using ll = long long;
 using Pll = pair<ll, ll>;
@@ -42,16 +42,107 @@ constexpr int mod1000000007 = (int)1e9 + 7;
 constexpr char newl = '\n';
 // clang-format on
 
-template <typename T>
-map<T,int> PrimeFactor(T n){
-  map<T,int> res;
-  for(long long i=2;i*i<=n;i++){
-    while(n%i==0){
-      res[i]++;
-      n/=i;
+// }}}
+
+struct union_find {
+  int grp_cnt, merge_cnt;
+  vector<int> siz, par;
+  union_find(int N) : grp_cnt(N), merge_cnt(0), siz(N, 1), par(N) {
+    iota(par.begin(), par.end(), 0);
+  }
+
+  int root(int x) {
+    if ( x == par[x] ) return x;
+    return par[x] = root(par[x]);
+  }
+
+  int group_count() { return grp_cnt; }
+
+  int merge_count() { return merge_cnt; }
+
+  int size(int x) { return siz[root(x)]; }
+
+  bool same(int x, int y) { return root(x) == root(y); }
+
+  bool merge(int x, int y) {
+    x = root(x);
+    y = root(y);
+    if ( x == y ) return false;
+    if ( siz[x] < siz[y] ) swap(x, y);
+    siz[x] += siz[y];
+    par[y] = x;
+    grp_cnt--;
+    merge_cnt++;
+    return true;
+  }
+
+  // Θ(NlogN)
+  // 2つのunion_findでi番目の頂点と同じ連結成分であるものの個数(i番目の頂点を含む)
+  vector<int> connect_count(union_find tree) {
+    map<pair<int, int>, int> mp;
+
+    int N = par.size();
+    for ( int i = 0; i < N; i++ ) {
+      pair<int, int> p = make_pair(root(i), tree.root(i));
+      mp[p]++;
+    }
+
+    vector<int> res(N);
+    for ( int i = 0; i < N; i++ ) {
+      pair<int, int> p = make_pair(root(i), tree.root(i));
+      res[i] = mp[p];
+    }
+    return res;
+  }
+};
+
+
+template <typename T = long long>
+vector<T> divisor(T n){
+  vector<T> res;
+  for(long long i=1;i*i<=n;i++){
+    if(n%i==0){
+      res.emplace_back(i);
+      if(i*i!=n) res.emplace_back(n/i);
     }
   }
-  if(n>1) res[n]++;
+  sort(res.begin(),res.end());
+  return res;
+}
+
+template <typename T>
+vector<T> prime_factor(T n) {
+  vector<T> res;
+  for ( long long i = 2; i * i <= n; i++ ) {
+    while ( n % i == 0 ) {
+      res.emplace_back(i);
+      n /= i;
+    }
+  }
+  if ( n > 1 ) res.emplace_back(n);
+  return res;
+}
+
+vector<ll> common_prime_factor(ll a,ll b){
+  auto ds1=prime_factor(a);
+  auto ds2=prime_factor(b);
+
+  vector<ll> res;
+  ds2.erase(unique(ds2.begin(),ds2.end()),ds2.end());
+
+  for(auto d:ds1){
+    int idx=lower_bound(ds2.begin(),ds2.end(),d)-ds2.begin();
+    if(d==ds2[idx]){
+      res.emplace_back(d);
+    }
+  }
+  return res;
+}
+
+template <typename T>
+map<T, int> counter(const vector<T> &vs) {
+  map<T, int> res;
+  for ( T v : vs ) res[v]++;
   return res;
 }
 
@@ -61,6 +152,11 @@ int main() {
 
   ll a,b;
   cin>>a>>b;
-  auto ds=PrimeFactor(gcd(a,b));
-  cout<<ds.size()+1<<endl;
+
+  auto ps=common_prime_factor(a,b);
+
+  auto cnt=counter(ps);
+
+  cout<<cnt.size()+1<<endl;
+
 }
