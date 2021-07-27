@@ -64,8 +64,8 @@ struct prime_factor_table {
 
   vector<int> factorize(int x) {
     vector<int> res;
-    while ( ps[x] > 1 ) {
-      res.emplace_back(ps[x]);
+    while ( ps[x] != 1 ) {
+      res.push_back(ps[x]);
       x /= ps[x];
     }
     return res;
@@ -87,79 +87,59 @@ map<T, int> counter(const vector<T> &vs) {
   return res;
 }
 
+template <typename T>
+T floor_div(T n, T d) {
+  assert(d != 0);
+  return n / d - (((n ^ d) < 0) && (n % d));
+}
 
-vector<int> euler_phi_table(int n) {
-  vector<int> euler(n + 1);
-  for(int i = 0; i <= n; i++) {
-    euler[i] = i;
-  }
-  for(int i = 2; i <= n; i++) {
-    if(euler[i] == i) {
-      for(int j = i; j <= n; j += i) {
-        euler[j] = euler[j] / i * (i - 1);
+
+// Θ(NlogN)
+vector<int> alternative_euler_phi_table(int n) {
+  prime_factor_table table;
+  table.build(n);
+
+  vector<int> alt(n + 1, 0);
+  for ( int i = 1; i <= n; i++ )
+    alt[i] = n - i;
+
+  for ( int i = 2; i <= n; i++ ) {
+    // O(logN)
+    map<int, int> ps = counter(table.factorize(i));
+
+    bool is_square = false;
+    for ( auto [p, cnt] : ps ) {
+      if ( cnt >= 2 ) {
+        is_square = true;
+        break;
       }
     }
-  }
-  return euler;
-}
+    if ( is_square ) continue;
 
-// 1からnまでの自然数iについてreuler[i]:=[i,n]の互いに素なものの個数
-vector<int> reversed_section_euler_phi_table(int n) {
-  constexpr int INF = INT32_MAX/2;
-  vector<int> factors_count(n+1,0);
-  vector<int> res(n+1,n);
-  res[0]=0;
-
-  for(long long i=2;i<=n;i++){
-    if(factors_count[i]<0) continue;
-
-    for(int j=i;j<=n;j+=i){
-      if(factors_count[i]%2==0) res[j]+=n/i;
-      else res[j]-=n/i;
-    }
-    for(int j=i;j<=n;j+=i) factors_count[j]++;
-    for(long long j=i*i;j<=n;j+=i*i) factors_count[j]=-INF;
-  }
-
-  vector<int> euler = euler_phi_table(n);
-  debug(euler);
-  for(int i=1;i<=n;i++) res[i]-=euler[i];
-  return res;
-}
-
-vector<int> naive_euler(int n){
-  vector<int> res(n+1,0);
-  res[1]=n;
-  for(int i=2;i<=n;i++){
-    for(int j=i;j<=n;j++){
-      if(gcd(i,j)==1) res[i]++;
+    for ( int j = i; j <= n; j += i ) {
+      if ( ps.size() % 2 )
+        alt[j] -= floor_div(n - j, i);
+      else
+        alt[j] += floor_div(n - j, i);
     }
   }
-  return res;
+  return alt;
 }
 
 int main() {
-  cin.tie(nullptr);
   ios::sync_with_stdio(false);
+  cin.tie(nullptr);
 
-  int l, r;
-  cin >> l >> r;
-  vector<int> cnt(r + 1, 0);
-  auto euler1 = reversed_section_euler_phi_table(r);
-  auto euler2=naive_euler(r);
+  int l,r;
+  cin>>l>>r;
+  if(l==1) l++;
 
-  debug(euler1);
-  debug(euler2);
+  vector<int> table=alternative_euler_phi_table(r);
 
-  auto euler=euler1;
-
-  range(i, 1, r + 1) {
-    cnt[i] = r - i + 1;
-    cnt[i] -= (r / i) - 1;
-    cnt[i] -= euler[i] + 1;
+  ll ans=0;
+  for(int i=l;i<r;i++){
+    int v=(r-i+1)-table[i]-(r/i);
+    ans+=2*v;
   }
-
-  ll ans = 0;
-  range(i, l, r + 1) { ans += cnt[i]; }
-  cout << ans * 2 << endl;
+  cout<<ans<<endl;
 }
