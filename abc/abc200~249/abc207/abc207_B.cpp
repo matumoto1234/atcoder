@@ -1,13 +1,19 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
-#define rep(i, n) for (int i = 0; i < (int)(n); i += 1)
-#define rrep(i, n) for (int i = (int)(n)-1; i >= 0; i -= 1)
-#define range(i, l, r) for ( int i = (int)(l); i < (int)(r); (i) += 1 )
-#define rrange(i, l, r) for ( int i = (int)(r)-1; i >= (int)(l); (i) -= 1 )
+#define _over_load(_1,_2,_3,_4,NAME,...) NAME
+#define range(...) _over_load(__VA_ARGS__, range4, range3, range2)(__VA_ARGS__)
+#define range2(i, r) for ( int i = 0; i < (int)(r); (i) += 1)
+#define range3(i, l, r) for ( int i = (int)(l); i < (int)(r); (i) += 1)
+#define range4(i, l, r, inc) for ( int i = (int)(l); i < (int)(r); (i) += (inc))
+#define rrange(...) _over_load(__VA_ARGS__, rrange4, rrange3, rrange2)(__VA_ARGS__)
+#define rrange2(i, r) for ( int i = (int)(r) - 1; i >= 0; (i) -= 1)
+#define rrange3(i, l, r) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= 1)
+#define rrange4(i, l, r, inc) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= inc)
 #define debug(...) debug_func(#__VA_ARGS__, __VA_ARGS__)
 template <typename T, typename... T2> void debug_func(string_view name, const T &a, T2 &&...rest) { stack<char> bs; string_view lbs = "({[<"; string_view rbs = ")}]>"; int end = name.size(); for ( int i = 0; i < (int)name.size(); i++ ) { if ( lbs.find(name[i]) != string::npos ) { bs.push(name[i]); } if ( rbs.find(name[i]) != string::npos ) { if ( !bs.empty() ) { bs.pop(); } } if ( name[i] == ',' && bs.empty() ) { end = i; break; } } cerr << name.substr(0, end) << ":" << a; if constexpr ( sizeof...(rest) == 0 ) { cerr << endl; } else { cerr << ' '; debug_func(name.substr(name.find_first_not_of(' ', end + 1)), forward<T2>(rest)...); } }
 template <typename T> vector<T> make_vector(size_t a, T b) { return vector<T>(a, b); }
@@ -21,16 +27,8 @@ template <typename T> ostream &operator<<(ostream &os, stack<T> v) { if(!v.empty
 template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
 template <typename T> ostream &operator<<(ostream &os, const deque<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
 template <typename T> ostream &operator<<(ostream &os, const set<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
-template <typename T> void operator+=(vector<T> &vs, T x) { for ( T &v : vs ) v += x; }
-template <typename T> void operator-=(vector<T> &vs, T x) { for ( T &v : vs ) v -= x; }
-template <typename T> void operator*=(vector<T> &vs, T x) { for ( T &v : vs ) v *= x; }
-template <typename T> void operator/=(vector<T> &vs, T x) { for ( T &v : vs ) v /= x; }
-template <typename T> void operator%=(vector<T> &vs, T x) { for ( T &v : vs ) v %= x; }
-template <typename T> vector<T> operator+(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v += x; return res; }
-template <typename T> vector<T> operator-(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v -= x; return res; }
-template <typename T> vector<T> operator*(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v *= x; return res; }
-template <typename T> vector<T> operator/(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v /= x; return res; }
-template <typename T> vector<T> operator%(const vector<T> &vs, T x) { vector<T> res = vs; for ( T &v : res ) v %= x; return res; }
+template <typename T1, typename T2> istream &operator>>(istream &is, pair<T1, T2> &p) { is >> p.first >> p.second; return is; }
+template <typename T> istream &operator>>(istream &is, vector<T> &v) { for (T &in : v) is >> in; return is; }
 using ull = unsigned long long;
 using ll = long long;
 using Pll = pair<ll, ll>;
@@ -46,24 +44,88 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+namespace int128 {
+  __int128_t parse(const string &s) {
+    __int128_t res = 0;
+    for ( char c : s ) {
+      if ( isdigit(c) ) res = res * 10 + (c - '0');
+    }
+    if ( s[0] == '-' ) res *= -1;
+    return res;
+  }
+
+  istream &operator>>(istream &is, __int128_t &v) {
+    string s;
+    is >> s;
+    v = parse(s);
+    return is;
+  }
+
+  ostream &operator<<(ostream &os, const __int128_t &v) {
+    if ( !ostream::sentry(os) ) return os;
+    char buf[64];
+    char *d = end(buf);
+    __uint128_t tmp = (v < 0 ? -v : v);
+
+    do {
+      d--;
+      *d = char(tmp % 10 + '0');
+      tmp /= 10;
+    } while ( tmp );
+    if ( v < 0 ) {
+      d--;
+      *d = '-';
+    }
+    int len = end(buf) - d;
+    if ( os.rdbuf()->sputn(d, len) != len ) { os.setstate(ios_base::badbit); }
+    return os;
+  }
+
+  __int128_t gcd(__int128_t a, __int128_t b) {
+    __int128_t tmp;
+    while ( b > 0 ) {
+      tmp = a;
+      a = b;
+      b = tmp % b;
+    }
+    return a;
+  }
+
+  __int128_t lcm(__int128_t a, __int128_t b) { return a * b / gcd(a, b); }
+} // namespace int128
+using namespace int128;
+using i128 = __int128_t;
+
+
 int main() {
   cin.tie(nullptr);
   ios::sync_with_stdio(false);
 
-  int a,b,c,d;
+  ll a,b,c,d;
   cin>>a>>b>>c>>d;
 
-  int limit=3e6;
-  int ans=0;
-  ll blue=a,red=0;
-  while(blue>red*d && limit>0){
-    blue+=b;
-    red+=c;
-    ans++;
-    limit--;
+  if(b>=c*d){
+    cout<<-1<<endl;
+    return 0;
   }
 
-  if(limit==0 && blue>red*d) ans=-1;
+  ll valid=INF32;
+  ll invalid=0;
+  auto is_valid = [&](ll m){
+    i128 tmp1=b;
+    tmp1*=m;
+    tmp1+=a;
+    i128 tmp2=c;
+    tmp2*=m;
+    tmp2*=d;
+    return tmp1<=tmp2;
+  };
+  while(abs(valid-invalid)>1){
+    ll mid=(valid+invalid)/2;
+    if(is_valid(mid)) valid=mid;
+    else invalid=mid;
+  }
 
-  cout<<ans<<endl;
+  cout<<valid<<endl;
 }

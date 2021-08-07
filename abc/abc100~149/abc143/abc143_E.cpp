@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,60 +67,100 @@ constexpr char newl = '\n';
 
 // }}}
 
-template <typename T>
-struct cumulative_sum {
-  vector<T> dat;
-  cumulative_sum(int n) : dat(n + 1) {}
 
-  void set(int k, T x) { dat[k + 1] = x; }
+
+template <typename T>
+struct warshall_floyd {
+  vector<vector<T>> ds;
+  vector<vector<int>> ns;
+
+  T inf() { return numeric_limits<T>::max() / 2; }
+
+  warshall_floyd(int V) : ds(V, vector<T>(V, inf())) {
+    for ( int i = 0; i < V; i++ ) ds[i][i] = 0;
+  }
+
+  void add_edge(int from, int to, T cost) { ds[from][to] = cost; }
 
   void build() {
-    for ( int i = 0; i < (int)dat.size() - 1; i++ ) {
-      dat[i + 1] += dat[i];
+    int V = ds.size();
+
+    ns.resize(V, vector<int>(V));
+    for ( int i = 0; i < V; i++ ) {
+      for ( int j = 0; j < V; j++ ) {
+        ns[i][j] = j;
+      }
+    }
+
+    for ( int k = 0; k < V; k++ ) {
+      for ( int i = 0; i < V; i++ ) {
+        for ( int j = 0; j < V; j++ ) {
+          if ( ds[i][k] == inf() || ds[k][j] == inf() ) continue;
+          if ( ds[i][j] > ds[i][k] + ds[k][j] ) {
+            ds[i][j] = ds[i][k] + ds[k][j];
+            ns[i][j] = ns[i][k];
+          }
+        }
+      }
     }
   }
 
-  // [l,r)
-  T query(int l, int r) { return dat[r] - dat[l]; }
+  vector<T> &operator[](int k) { return ds[k]; }
+
+  bool neg_cycle() {
+    int V = ds.size();
+    for ( int i = 0; i < V; i++ ) {
+      if ( ds[i][i] < 0 ) return true;
+    }
+    return true;
+  }
+
+  vector<int> restore(int s, int g) {
+    vector<int> res;
+    for ( int v = s; v != g; v = ns[v][g] ) {
+      res.emplace_back(v);
+    }
+    res.emplace_back(g);
+    return res;
+  }
 };
 
+
 int main() {
-  ll n, x, m;
-  cin >> n >> x >> m;
+  ll n,m,l;
+  cin>>n>>m>>l;
+  warshall_floyd<ll> dists(n);
+  range(i,m){
+    int a,b,c;
+    cin>>a>>b>>c;
+    a--,b--;
+    dists.add_edge(a,b,c);
+    dists.add_edge(b,a,c);
+  }
 
-  map<ll, int> terms;
-  int term = 1;
+  dists.build();
 
-  vector<ll> as;
-
-  ll before = 0;
-  ll loop_size = 0;
-  ll loop_cnt = 0;
-  ll rem = 0;
-  for ( ll i = x; true; i = (i * i) % m, term++ ) {
-    as.emplace_back(i);
-    if ( terms[i] != 0 ) {
-      before = terms[i];
-      loop_size = term - terms[i];
-      n -= before;
-      loop_cnt = n / loop_size;
-      rem = n % loop_size;
-      break;
+  warshall_floyd<ll> G(n);
+  range(i,n) range(j,n){
+    if(dists[i][j]<=l){
+      G.add_edge(i,j,1);
+    }else{
+      G.add_edge(i,j,INF64);
     }
-    terms[i] = term;
   }
 
-  cumulative_sum<ll> sum(len(as));
-  range(i, len(as)) {
-    sum.set(i, as[i]);
+  G.build();
+
+  int q;
+  cin>>q;
+  range(i,q){
+    int s,t;
+    cin>>s>>t;
+    s--,t--;
+    if(G[s][t]==INF64){
+      cout<<-1<<newl;
+    }else{
+      cout<<G[s][t]-1<<newl;
+    }
   }
-
-  sum.build();
-
-
-  ll ans = 0;
-  ans+=sum.query(0,before);
-  ans+=sum.query(before,before+loop_size)*loop_cnt;
-  ans+=sum.query(before,before+rem);
-  cout<<ans<<endl;
 }

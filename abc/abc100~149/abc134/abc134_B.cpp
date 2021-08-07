@@ -1,9 +1,11 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
+#define len(x) ((int)(x).size())
 #define _over_load(_1,_2,_3,_4,NAME,...) NAME
 #define range(...) _over_load(__VA_ARGS__, range4, range3, range2)(__VA_ARGS__)
 #define range2(i, r) for ( int i = 0; i < (int)(r); (i) += 1)
@@ -13,14 +15,35 @@ using namespace std;
 #define rrange2(i, r) for ( int i = (int)(r) - 1; i >= 0; (i) -= 1)
 #define rrange3(i, l, r) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= 1)
 #define rrange4(i, l, r, inc) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= inc)
-#define debug(...) debug_func(#__VA_ARGS__, __VA_ARGS__)
-template <typename T, typename... T2> void debug_func(string_view name, const T &a, T2 &&...rest) { stack<char> bs; string_view lbs = "({[<"; string_view rbs = ")}]>"; int end = name.size(); for ( int i = 0; i < (int)name.size(); i++ ) { if ( lbs.find(name[i]) != string::npos ) { bs.push(name[i]); } if ( rbs.find(name[i]) != string::npos ) { if ( !bs.empty() ) { bs.pop(); } } if ( name[i] == ',' && bs.empty() ) { end = i; break; } } cerr << name.substr(0, end) << ":" << a; if constexpr ( sizeof...(rest) == 0 ) { cerr << endl; } else { cerr << ' '; debug_func(name.substr(name.find_first_not_of(' ', end + 1)), forward<T2>(rest)...); } }
+#define whole(f, x, ...) ([&](decltype((x)) container) { return (f)( begin(container), end(container), ## __VA_ARGS__); })
+#define rwhole(f, x, ...) ([&](decltype((x)) container) { return (f)( rbegin(container), rend(container), ## __VA_ARGS__); })
+#define debug(...) debug_function(#__VA_ARGS__, __VA_ARGS__)
+template <typename T, typename... T2> void debug_function(string_view name, const T &a, T2 &&...rest) {
+  stack<char> bs;
+  string_view lbs = "({[<", rbs = ")}]>";
+  int end = name.size();
+  for ( int i = 0; i < (int)name.size(); i++ ) {
+    if ( lbs.find(name[i]) != string::npos ) bs.push(name[i]);
+    if ( rbs.find(name[i]) != string::npos && !bs.empty() ) bs.pop();
+    if ( name[i] == ',' && bs.empty() ) {
+      end = i;
+      break;
+    }
+  }
+  cerr << name.substr(0, end) << ":" << a;
+  if constexpr ( sizeof...(rest) == 0 ) {
+    cerr << '\n';
+  } else {
+    cerr << ' ';
+    debug_function(name.substr(name.find_first_not_of(' ', end + 1)), forward<T2>(rest)...);
+  }
+}
 template <typename T> vector<T> make_vector(size_t a, T b) { return vector<T>(a, b); }
 template <typename... Ts> auto make_vector(size_t a, Ts... ts) { return vector<decltype(make_vector(ts...))>(a, make_vector(ts...)); }
 template <typename T1, typename T2> inline bool chmax(T1 &a, T2 b) { return a < b && (a = b, true); }
 template <typename T1, typename T2> inline bool chmin(T1 &a, T2 b) { return a > b && (a = b, true); }
 template <typename T1, typename T2> ostream &operator<<(ostream &os, const pair<T1, T2> &p) { os << p.first << ' ' << p.second; return os; }
-template <typename T1, typename T2> ostream &operator<<(ostream &os, const map<T1, T2> &v) { for ( pair<T1, T2> x : v ) { os << x << "\n"; } return os; }
+template <typename T1, typename T2> ostream &operator<<(ostream &os, const map<T1, T2> &v) { for ( pair<T1, T2> x : v ) { os << "(" << x.first <<", " << x.second << ")" << (v.rbegin()->first == x.first ? "" : ", "); } return os; }
 template <typename T> ostream &operator<<(ostream &os, queue<T> v) { if(!v.empty()) { os << v.front(); v.pop(); } while (!v.empty()) { os << " " << v.front(); v.pop(); } return os; }
 template <typename T> ostream &operator<<(ostream &os, stack<T> v) { if(!v.empty()) { os << v.top(); v.pop(); } while (!v.empty()) { os << " " << v.top(); v.pop(); } return os; }
 template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
@@ -28,6 +51,7 @@ template <typename T> ostream &operator<<(ostream &os, const deque<T> &v) { bool
 template <typename T> ostream &operator<<(ostream &os, const set<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
 template <typename T1, typename T2> istream &operator>>(istream &is, pair<T1, T2> &p) { is >> p.first >> p.second; return is; }
 template <typename T> istream &operator>>(istream &is, vector<T> &v) { for (T &in : v) is >> in; return is; }
+struct IoSetup { IoSetup(int x = 15) { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(x); cerr << fixed << setprecision(x); } } iosetup;
 using ull = unsigned long long;
 using ll = long long;
 using Pll = pair<ll, ll>;
@@ -44,37 +68,17 @@ constexpr char newl = '\n';
 // }}}
 
 
-int main() {
-  cin.tie(nullptr);
-  ios::sync_with_stdio(false);
-
-  int n, k;
-  cin >> n >> k;
-  vector<int> as(n);
-  cin >> as;
-
-  int type = 0;
-  map<int, int> cnt;
-
-int ans = 0;
-
-auto is_valid = [&](int value) {
-  return value <= k;
-};
-
-queue<int> q;
-for ( auto a : as ) {
-  q.push(a);
-  if ( cnt[a] == 0 ) type++;
-  cnt[a]++;
-
-  while ( !q.empty() && !is_valid(type) ) {
-    int rm = q.front(); q.pop();
-
-    cnt[rm]--;
-    if ( cnt[rm] == 0 ) type--;
-  }
-  chmax(ans, q.size());
+template <typename T>
+T ceil_div(T n, T d) {
+  assert(d != 0);
+  return n / d + (((n ^ d) >= 0) && (n % d));
 }
-  cout << ans << endl;
+
+
+int main() {
+  int n,d;
+  cin>>n>>d;
+  d*=2;
+  d++;
+  cout<<ceil_div(n,d)<<endl;
 }

@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,60 +67,99 @@ constexpr char newl = '\n';
 
 // }}}
 
-template <typename T>
-struct cumulative_sum {
-  vector<T> dat;
-  cumulative_sum(int n) : dat(n + 1) {}
 
-  void set(int k, T x) { dat[k + 1] = x; }
+// recommendation { MOD:2^61-1, base:random }
+struct rolling_hash{
+  using i128 = __int128_t;
+  using ll = long long;
+  ll base,mod;
+  vector<ll> hash,cumulative_sum,inv;
+  rolling_hash(vector<ll> vals,ll B,ll MOD = (1LL<<61)-1){
+    set_base(B);
+    set_mod(MOD);
+    build(vals);
+  }
+  rolling_hash(string &s,ll B,ll MOD = (1LL<<61)-1){
+    vector<ll> vals;
+    for(char c:s) vals.emplace_back(c);
+    set_base(B);
+    set_mod(MOD);
+    build(vals);
+  }
 
-  void build() {
-    for ( int i = 0; i < (int)dat.size() - 1; i++ ) {
-      dat[i + 1] += dat[i];
+  void set_base(ll B){ base=B; }
+  void set_mod(ll MOD){ mod=MOD; }
+
+  // mod multiprecation
+  ll mod_mul(ll a,ll b){
+    i128 res=a;
+    res*=b;
+    res=(res >> 61) + (res & mod);
+    if(res >= mod) res-=mod;
+    return (ll)res;
+  }
+
+  ll pow(ll a,i128 e){
+    if(e==0) return 1;
+    if(e%2==0){
+      ll res=pow(a,e/2);
+      return mod_mul(res,res);
     }
+    return mod_mul(pow(a,e-1),a);
+  }
+
+  void build(vector<ll> vals){
+    int n=vals.size();
+    hash.assign(n,0);
+    cumulative_sum.assign(n+1,0);
+    inv.assign(n+1,0);
+    i128 e=mod-2;
+    inv[n]=pow(base,n*e);
+    for(int i=n-1;i>=0;i--) inv[i]=mod_mul(inv[i+1],base);
+    for(int i=0;i<n;i++) hash[i]=mod_mul(vals[i],pow(base,i));
+    for(int i=0;i<n;i++) cumulative_sum[i+1]=(hash[i]+cumulative_sum[i])%mod;
   }
 
   // [l,r)
-  T query(int l, int r) { return dat[r] - dat[l]; }
+  long long find(int l,int r){
+    ll res=cumulative_sum[r]-cumulative_sum[l];
+    if(res<0) res+=mod;
+    res=mod_mul(res,inv[l]);
+    return (long long)res;
+  }
 };
 
+
 int main() {
-  ll n, x, m;
-  cin >> n >> x >> m;
+  string s,t;
+  cin>>s>>t;
 
-  map<ll, int> terms;
-  int term = 1;
+  int n=len(s);
+  s+=s;
 
-  vector<ll> as;
-
-  ll before = 0;
-  ll loop_size = 0;
-  ll loop_cnt = 0;
-  ll rem = 0;
-  for ( ll i = x; true; i = (i * i) % m, term++ ) {
-    as.emplace_back(i);
-    if ( terms[i] != 0 ) {
-      before = terms[i];
-      loop_size = term - terms[i];
-      n -= before;
-      loop_cnt = n / loop_size;
-      rem = n % loop_size;
-      break;
+  auto idxs=make_vector(len(s)+1,26,-1);
+  rrange(i,len(s)){
+    range(j,26){
+      idxs[i][j]=idxs[i+1][j];
     }
-    terms[i] = term;
+    idxs[i][s[i]-'a']=i;
   }
 
-  cumulative_sum<ll> sum(len(as));
-  range(i, len(as)) {
-    sum.set(i, as[i]);
+  ll ans=0;
+  int now=0;
+  range(i,len(t)){
+    int nxt=idxs[now][t[i]-'a'];
+    // debug(now,nxt,i,t[i]);
+    if(nxt==-1){
+      cout<<-1<<endl;
+      return 0;
+    }
+    if(nxt<=now) nxt+=n;
+    ans+=nxt-now;
+    now=nxt%n;
   }
 
-  sum.build();
+  ans++;
 
-
-  ll ans = 0;
-  ans+=sum.query(0,before);
-  ans+=sum.query(before,before+loop_size)*loop_cnt;
-  ans+=sum.query(before,before+rem);
   cout<<ans<<endl;
 }
