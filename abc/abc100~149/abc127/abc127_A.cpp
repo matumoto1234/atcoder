@@ -70,47 +70,13 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n,m;
-  cin>>n>>m;
-  vector<ll> as(n);
-  cin>>as;
-  vector<Pll> cbs(m);
-  for(auto &[c,b]:cbs){
-    cin>>b>>c;
+  int a,b;
+  cin>>a>>b;
+  if(a<=5){
+    b=0;
+  }else if(a<=12){
+    b/=2;
   }
 
-  sort(as.begin(),as.end());
-  sort(cbs.rbegin(),cbs.rend());
-
-  vector<ll> nas;
-
-  range(i,m){
-    auto [c,b]=cbs[i];
-
-    range(j,b){
-      if(as.empty()) break;
-
-      if(as[0]<c){
-        nas.emplace_back(c);
-        as.erase(as.begin());
-      }else{
-        for(auto a:as){
-          nas.emplace_back(a);
-        }
-        as.clear();
-        break;
-      }
-    }
-  }
-
-  if(!as.empty()){
-    for(auto a:as){
-      nas.emplace_back(a);
-    }
-  }
-
-  // debug(len(nas),nas);
-
-  ll sum=accumulate(nas.begin(),nas.end(),0LL);
-  cout<<sum<<endl;
+  cout<<b<<endl;
 }
