@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,8 +67,40 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  string s;
+  cin>>s;
+
+  if(s==""){
+    cout<<0<<endl;
+    return 0;
+  }
+
+  s+="+";
+
+  int ans=0;
+  stack<int> st;
+  range(i,len(s)){
+    if(isdigit(s[i])){
+      st.push((int)(s[i]-'0'));
+      continue;
+    }
+
+    if(s[i]=='+'){
+      if(st.top()){
+        ans++;
+      }
+      st.pop();
+    }
+    if(s[i]=='*'){
+      int tmp=st.top();
+      st.pop();
+      st.push(tmp*(s[i+1]-'0'));
+      i++;
+    }
+  }
+
+  cout<<ans<<endl;
 }

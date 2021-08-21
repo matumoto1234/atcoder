@@ -66,8 +66,59 @@ constexpr char newl = '\n';
 
 // }}}
 
+vector<vector<vector<int>>> grid_bfs(vector<string> &s, char start, const string &wall = "#") {
+  constexpr int dy[] = { 0, 1, 0, -1 }, dx[] = { 1, 0, -1, 0 };
+  int h = s.size(), w = s[0].size();
+  auto res = make_vector(h, w, 4, INF32);
+  deque<tuple<int, int, int>> q;
+  for ( int i = 0; i < h; i++ ) {
+    for ( int j = 0; j < w; j++ ) {
+      if ( s[i][j] == start ) {
+        range(k, 4) {
+          q.emplace_back(i, j, k);
+          res[i][j][k] = 0;
+        }
+      }
+    }
+  }
+  while ( !q.empty() ) {
+    auto [y, x, from] = q.front();
+    q.pop_front();
+    for ( int i = 0; i < 4; i++ ) {
+      int ny = y + dy[i], nx = x + dx[i];
+      if ( ny < 0 || nx < 0 || ny >= h || nx >= w ) continue;
+      if ( wall.find(s[ny][nx]) != string::npos ) continue;
+
+      if ( i == from ) {
+        if ( chmin(res[ny][nx][i], res[y][x][from]) ) {
+          q.emplace_front(ny, nx, i);
+        }
+      } else {
+        if ( chmin(res[ny][nx][i], res[y][x][from] + 1) ) {
+          q.emplace_back(ny, nx, i);
+        }
+      }
+    }
+  }
+  return res;
+}
+
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int h, w;
+  cin >> h >> w;
+  int rs, cs, rt, ct;
+  cin >> rs >> cs >> rt >> ct;
+  rs--, cs--, rt--, ct--;
+  vector<string> s(h);
+  range(i, h) {
+    cin >> s[i];
+  }
+
+  s[rs][cs] = 'S';
+  auto arrived = grid_bfs(s, 'S', "#");
+  int ans = INF32;
+  range(i, 4) {
+    chmin(ans, arrived[rt][ct][i]);
+  }
+  cout << ans << endl;
 }

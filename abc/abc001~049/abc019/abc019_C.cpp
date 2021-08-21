@@ -67,7 +67,26 @@ constexpr char newl = '\n';
 // }}}
 
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int n;
+  cin >> n;
+  vector<int> as(n);
+  cin >> as;
+
+  map<int, int> acnt;
+  for ( auto a : as ) {
+    acnt[a]++;
+  }
+
+  int ans = 0;
+  for ( auto a : as ) {
+    bool found = false;
+    while ( a < (int)1e9 ) {
+      a *= 2;
+      if ( acnt[a] >= 1 ) found = true;
+    }
+    if ( found ) continue;
+    ans++;
+  }
+
+  cout << ans << endl;
 }

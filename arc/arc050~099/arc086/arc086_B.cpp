@@ -67,7 +67,53 @@ constexpr char newl = '\n';
 // }}}
 
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int n;
+  cin >> n;
+  vector<int> as(n);
+  cin >> as;
+
+  auto minidx = whole(min_element, as) - as.begin();
+  auto maxidx = whole(max_element, as) - as.begin();
+  int mina = as[minidx], maxa = as[maxidx];
+
+  vector<P> ans;
+  bool is_plus = true;
+  if ( abs(mina) > abs(maxa) ) {
+    range(i, n) {
+      if ( i == minidx ) continue;
+      as[i] += mina;
+      ans.emplace_back(minidx, i);
+    }
+    if ( mina < 0 ) { is_plus = false; }
+  } else {
+    range(i, n) {
+      if ( i == maxidx ) continue;
+      as[i] += maxa;
+      ans.emplace_back(maxidx, i);
+    }
+    if ( maxa < 0 ) { is_plus = false; }
+  }
+
+  if ( is_plus ) {
+    range(i, n - 1) {
+      int &l = as[i], &r = as[i + 1];
+      r += l;
+      ans.emplace_back(i, i + 1);
+    }
+  } else {
+    rrange(i, 1, n) {
+      int &l = as[i - 1], &r = as[i];
+      l += r;
+      ans.emplace_back(i, i - 1);
+    }
+  }
+
+  for ( auto &[a, b] : ans ) {
+    a++, b++;
+  }
+
+  cout << len(ans) << newl;
+  range(i, len(ans))
+    cout << ans[i] << newl;
+  debug(as);
 }

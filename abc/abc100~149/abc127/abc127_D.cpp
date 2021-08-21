@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
 // {{{
 
 // clang-format off
@@ -15,8 +14,8 @@ using namespace std;
 #define rrange2(i, r) for ( int i = (int)(r) - 1; i >= 0; (i) -= 1)
 #define rrange3(i, l, r) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= 1)
 #define rrange4(i, l, r, inc) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= inc)
-#define whole(f, x, ...) ([&](decltype((x)) container) { return (f)( begin(container), end(container), ## __VA_ARGS__); })
-#define rwhole(f, x, ...) ([&](decltype((x)) container) { return (f)( rbegin(container), rend(container), ## __VA_ARGS__); })
+#define whole(f, x, ...) ([&](decltype((x)) container) { return (f)( begin(container), end(container), ## __VA_ARGS__); })(x)
+#define rwhole(f, x, ...) ([&](decltype((x)) container) { return (f)( rbegin(container), rend(container), ## __VA_ARGS__); })(x)
 #define debug(...) debug_function(#__VA_ARGS__, __VA_ARGS__)
 template <typename T, typename... T2> void debug_function(string_view name, const T &a, T2 &&...rest) {
   stack<char> bs;
@@ -67,50 +66,39 @@ constexpr char newl = '\n';
 
 // }}}
 
-
-
 int main() {
-  int n,m;
-  cin>>n>>m;
-  vector<ll> as(n);
-  cin>>as;
-  vector<Pll> cbs(m);
-  for(auto &[c,b]:cbs){
-    cin>>b>>c;
+  int n, m;
+  cin >> n >> m;
+  vector<int> as(n);
+  cin >> as;
+  vector<P> cb(m);
+  range(i, m) {
+    auto &[c, b] = cb[i];
+    cin >> b >> c;
   }
 
-  sort(as.begin(),as.end());
-  sort(cbs.rbegin(),cbs.rend());
+  whole(sort, as);
+  rwhole(sort, cb);
 
-  vector<ll> nas;
+  priority_queue<int, vector<int>, greater<int>> pq;
+  for ( auto a : as ) {
+    pq.push(a);
+  }
 
-  range(i,m){
-    auto [c,b]=cbs[i];
-
-    range(j,b){
-      if(as.empty()) break;
-
-      if(as[0]<c){
-        nas.emplace_back(c);
-        as.erase(as.begin());
-      }else{
-        for(auto a:as){
-          nas.emplace_back(a);
-        }
-        as.clear();
-        break;
-      }
+  range(i, m) {
+    auto [c, b] = cb[i];
+    range(j, b) {
+      int v = pq.top();
+      if ( v >= c ) break;
+      pq.pop();
+      pq.push(c);
     }
   }
 
-  if(!as.empty()){
-    for(auto a:as){
-      nas.emplace_back(a);
-    }
+  ll ans = 0;
+  while ( !pq.empty() ) {
+    ans += pq.top();
+    pq.pop();
   }
-
-  // debug(len(nas),nas);
-
-  ll sum=accumulate(nas.begin(),nas.end(),0LL);
-  cout<<sum<<endl;
+  cout << ans << endl;
 }

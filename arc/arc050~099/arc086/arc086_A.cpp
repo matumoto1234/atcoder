@@ -66,8 +66,32 @@ constexpr char newl = '\n';
 
 // }}}
 
+template <typename T>
+map<T, int> counter(const vector<T> &vs) {
+  map<T, int> res;
+  for ( T v : vs )
+    res[v]++;
+  return res;
+}
+
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int n, k;
+  cin >> n >> k;
+  vector<int> as(n);
+  cin >> as;
+
+  auto acnt = counter(as);
+  vector<P> valkey;
+  for ( auto [key, val] : acnt ) {
+    valkey.emplace_back(val, key);
+  }
+
+  whole(sort, valkey);
+
+  ll ans = 0;
+  range(i, len(valkey) - k) {
+    auto [val, key] = valkey[i];
+    ans += val;
+  }
+  cout << ans << endl;
 }

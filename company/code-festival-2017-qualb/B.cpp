@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,8 +67,30 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int n;
+  cin>>n;
+  vector<int> ds(n);
+  cin>>ds;
+  int m;
+  cin>>m;
+  vector<int> ts(m);
+  cin>>ts;
+
+  unordered_map<int,int> dcnt;
+  for(auto d:ds) dcnt[d]++;
+
+  bool ans=true;
+  range(i,m){
+    int t=ts[i];
+    if(dcnt[t]==0){
+      ans=false;
+      break;
+    }
+    dcnt[t]--;
+  }
+
+  cout<<(ans?"YES":"NO")<<endl;
 }

@@ -66,8 +66,37 @@ constexpr char newl = '\n';
 
 // }}}
 
+template <typename T>
+set<T> and_set(set<T> s, set<T> t) {
+  if ( s.size() < t.size() ) swap(s, t);
+  set<T> res;
+  for ( auto val : s ) {
+    if ( t.find(val) != t.end() ) res.insert(val);
+  }
+  return res;
+}
+
+template <typename T>
+set<T> or_set(set<T> s, set<T> t) {
+  set<T> res;
+  for ( auto val : s ) {
+    res.insert(val);
+  }
+  for ( auto val : t ) {
+    res.insert(val);
+  }
+  return res;
+}
+
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int na, nb;
+  cin >> na >> nb;
+  vector<int> as(na), bs(nb);
+  cin >> as >> bs;
+
+  set<int> aset, bset;
+  for ( auto a : as ) aset.insert(a);
+  for ( auto b : bs ) bset.insert(b);
+
+  cout << len(and_set(aset, bset)) / (double)len(or_set(aset, bset)) << endl;
 }

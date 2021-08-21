@@ -66,8 +66,30 @@ constexpr char newl = '\n';
 
 // }}}
 
+template <typename T>
+map<T, int> counter(const vector<T> &vs) {
+  map<T, int> res;
+  for ( T v : vs )
+    res[v]++;
+  return res;
+}
+
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int n;
+  cin >> n;
+  vector<int> as(n);
+  cin >> as;
+
+  auto cnt = counter(as);
+
+  int ans = 0;
+  for ( auto [key, val] : cnt ) {
+    if ( key > val ) {
+      ans += val;
+      continue;
+    }
+
+    ans += val - key;
+  }
+  cout << ans << endl;
 }

@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,8 +67,33 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+ll make_niconico(int digit){
+  string s="";
+  range(i,digit){
+    if(i%2==0) s+="2";
+    else s+="5";
+  }
+
+  if(s=="") return 0;
+
+  return stoll(s);
+}
+
+
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int n;
+  cin>>n;
+
+  cout<<n/25<<endl;
+  // ll ans=0;
+  // range(i,2,100,2){
+  //   if(i%2) continue;
+  //   ll v=make_niconico(i);
+  //   if(v>n) break;
+
+  //   debug(ans,v);
+  //   ans+=n/v;
+  // }
+  // cout<<ans<<endl;
 }

@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,8 +67,26 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+
 int main() {
-  int x, t;
-  cin >> x >> t;
-  cout << max(x - t, 0) << endl;
+  int n;
+  cin>>n;
+  vector<int> as(n);
+  cin>>as;
+
+  map<int,int> acnt;
+  int ans=0;
+  for(auto a:as){
+    acnt[a]++;
+  }
+
+  for(auto [key,val]:acnt){
+    if(val>=2){
+      val--;
+      ans+=val;
+    }
+  }
+
+  cout<<ans<<endl;
 }
