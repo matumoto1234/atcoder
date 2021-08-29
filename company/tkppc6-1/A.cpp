@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,9 +67,18 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  int n;
+  cin>>n;
+  if(n<=2014){
+    cout<<-1<<endl;
+  }else if(n<=2016){
+    cout<<n-2014<<endl;
+  }else if(n==2017){
+    cout<<-1<<endl;
+  }else{
+    cout<<n-2015<<endl;
+  }
 }

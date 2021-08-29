@@ -66,9 +66,34 @@ constexpr char newl = '\n';
 
 // }}}
 
+template <typename T>
+map<T, int> counter(const vector<T> &vs) {
+  map<T, int> res;
+  for ( T v : vs )
+    res[v]++;
+  return res;
+}
+
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  int n;
+  cin >> n;
+  vector<int> as(n);
+  cin >> as;
+
+  vector<int> bs(n);
+  range(i, n) {
+    if ( as[i] % 4 == 0 )
+      bs[i] = 4;
+    else if ( as[i] % 2 == 0 )
+      bs[i] = 2;
+    else
+      bs[i] = 1;
+  }
+
+  auto cnt = counter(bs);
+  bool ans = true;
+  if ( cnt[1] + (cnt[2] >= 1) > cnt[4] + 1 ) ans = false;
+
+  if ( n == cnt[2] ) ans = true;
+  cout << (ans ? "Yes" : "No") << endl;
 }

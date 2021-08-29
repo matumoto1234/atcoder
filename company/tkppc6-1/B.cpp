@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,9 +67,23 @@ constexpr char newl = '\n';
 
 // }}}
 
+
+template <typename T>
+map<T, int> counter(const vector<T> &vs) {
+  map<T, int> res;
+  for ( T v : vs ) res[v]++;
+  return res;
+}
+
+
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  int n,m;
+  cin>>n>>m;
+  vector<int> as(n);
+  cin>>as;
+
+  auto cnt=counter(as);
+  for(auto [key,val]:cnt){
+    
+  }
 }

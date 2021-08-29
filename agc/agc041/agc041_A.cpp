@@ -67,8 +67,16 @@ constexpr char newl = '\n';
 // }}}
 
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  ll n, a, b;
+  cin >> n >> a >> b;
+  if ( abs(a - b) % 2 == 0 ) {
+    cout << abs(a - b) / 2 << endl;
+    return 0;
+  }
+
+  ll tmp = min(a, b) - 1;
+  ll v1 = abs(abs(a - tmp) - abs(b - tmp)) / 2 + tmp + 1;
+  tmp = n - max(a, b);
+  ll v2 = abs(abs(a - tmp) - abs(b - tmp)) / 2 + tmp + 1;
+  cout << min(v1, v2) << endl;
 }

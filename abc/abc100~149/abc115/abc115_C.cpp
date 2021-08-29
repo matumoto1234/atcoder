@@ -67,8 +67,17 @@ constexpr char newl = '\n';
 // }}}
 
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  int n, k;
+  cin >> n >> k;
+  vector<int> hs(n);
+  cin >> hs;
+
+  whole(sort, hs);
+  k--;
+  int ans = INF32;
+  range(i, n) {
+    if ( i + k >= n ) break;
+    chmin(ans, hs[i + k] - hs[i]);
+  }
+  cout << ans << endl;
 }

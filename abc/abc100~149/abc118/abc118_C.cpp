@@ -67,8 +67,12 @@ constexpr char newl = '\n';
 // }}}
 
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  int n;
+  cin >> n;
+  vector<int> as(n);
+  cin >> as;
+
+  int ans = gcd(as[0], as[1]);
+  range(i, 1, n) { ans = gcd(ans, as[i]); }
+  cout << ans << endl;
 }

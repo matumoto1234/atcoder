@@ -67,8 +67,23 @@ constexpr char newl = '\n';
 // }}}
 
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  int n, m;
+  cin >> n >> m;
+  vector<int> xs(m);
+  cin >> xs;
+
+  if ( m == 1 ) {
+    cout << 0 << endl;
+    return 0;
+  }
+
+  whole(sort, xs);
+  vector<int> ds(m - 1);
+  range(i, m - 1) { ds[i] = xs[i + 1] - xs[i]; }
+
+  rwhole(sort, ds);
+  ll sub = 0;
+  range(i, min(m - 1, n - 1)) { sub += ds[i]; }
+
+  cout << whole(accumulate, ds, 0LL) - sub << endl;
 }

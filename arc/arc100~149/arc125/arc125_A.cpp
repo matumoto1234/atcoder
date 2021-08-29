@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // {{{
 
 // clang-format off
@@ -66,9 +67,72 @@ constexpr char newl = '\n';
 
 // }}}
 
+// recommend { MOD:2^61-1, base:random }
+struct rolling_hash{
+  using i128 = __int128_t;
+  using ll = long long;
+  ll base,mod;
+  vector<ll> hash,cumulative_sum,inv;
+  rolling_hash(vector<ll> vals,ll B,ll MOD = (1LL<<61)-1){
+    set_base(B);
+    set_mod(MOD);
+    build(vals);
+  }
+  rolling_hash(string &s,ll B,ll MOD = (1LL<<61)-1){
+    vector<ll> vals;
+    for(char c:s) vals.emplace_back(c);
+    set_base(B);
+    set_mod(MOD);
+    build(vals);
+  }
+
+  void set_base(ll B){ base=B; }
+  void set_mod(ll MOD){ mod=MOD; }
+
+  // mod multiprecation
+  ll mod_mul(ll a,ll b){
+    i128 res=a;
+    res*=b;
+    res=(res >> 61) + (res & mod);
+    if(res >= mod) res-=mod;
+    return (ll)res;
+  }
+
+  ll pow(ll a,i128 e){
+    if(e==0) return 1;
+    if(e%2==0){
+      ll res=pow(a,e/2);
+      return mod_mul(res,res);
+    }
+    return mod_mul(pow(a,e-1),a);
+  }
+
+  void build(vector<ll> vals){
+    int n=vals.size();
+    hash.assign(n,0);
+    cumulative_sum.assign(n+1,0);
+    inv.assign(n+1,0);
+    i128 e=mod-2;
+    inv[n]=pow(base,n*e);
+    for(int i=n-1;i>=0;i--) inv[i]=mod_mul(inv[i+1],base);
+    for(int i=0;i<n;i++) hash[i]=mod_mul(vals[i],pow(base,i));
+    for(int i=0;i<n;i++) cumulative_sum[i+1]=(hash[i]+cumulative_sum[i])%mod;
+  }
+
+  // [l,r)
+  long long find(int l,int r){
+    ll res=cumulative_sum[r]-cumulative_sum[l];
+    if(res<0) res+=mod;
+    res=mod_mul(res,inv[l]);
+    return (long long)res;
+  }
+};
+
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  int n,m;
+  cin>>n>>m;
+  vector<int> ss(n),ts(m);
+  cin>>ss>>ts;
+
+  
 }

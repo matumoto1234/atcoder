@@ -66,9 +66,25 @@ constexpr char newl = '\n';
 
 // }}}
 
+int f(int n) {
+  if ( n % 2 == 0 ) {
+    return n / 2;
+  } else {
+    return 3 * n + 1;
+  }
+}
+
 int main() {
-  string s, t;
-  cin >> s >> t;
-  s += s;
-  cout << (s.find(t) != string::npos ? "Yes" : "No") << endl;
+  int x;
+  cin >> x;
+
+  int ans = 0;
+  set<int> s;
+  while ( 1 ) {
+    if ( s.find(x) != s.end() ) break;
+    s.insert(x);
+    x = f(x);
+    ans++;
+  }
+  cout << ans + 1<< endl;
 }

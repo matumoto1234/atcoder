@@ -1,44 +1,187 @@
-#include<iostream>
-#include<vector>
-#include<algorithm>
+#include <bits/stdc++.h>
 using namespace std;
-using ll = long long;
-const ll p = 1e9+7;
+#include <atcoder/modint>
+using mint = atcoder::modint1000000007;
 
-int main(){
-  ll n,k;
-  cin>>n>>k;
-  vector<ll> a(n);
-  for(ll i=0;i<n;i++){
-    cin>>a[i];
-  }
-  vector<vector<ll>> cnt(2,vector<ll>(n,0));
+// {{{
 
-  
-  for(int i=0;i<n;i++){
-    for(int j=0;j<n;j++){
-      if(i==j){
-        continue;
-      }
-      if(a[i]>a[j]){
-        if(j<i){
-          cnt[0][i]++;
-        }else{
-          cnt[0][i]++;
-          cnt[1][i]++;
-        }
-      }
+// clang-format off
+#define len(x) ((int)(x).size())
+#define _over_load(_1,_2,_3,_4,NAME,...) NAME
+#define range(...) _over_load(__VA_ARGS__, range4, range3, range2)(__VA_ARGS__)
+#define range2(i, r) for ( int i = 0; i < (int)(r); (i) += 1)
+#define range3(i, l, r) for ( int i = (int)(l); i < (int)(r); (i) += 1)
+#define range4(i, l, r, inc) for ( int i = (int)(l); i < (int)(r); (i) += (inc))
+#define rrange(...) _over_load(__VA_ARGS__, rrange4, rrange3, rrange2)(__VA_ARGS__)
+#define rrange2(i, r) for ( int i = (int)(r) - 1; i >= 0; (i) -= 1)
+#define rrange3(i, l, r) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= 1)
+#define rrange4(i, l, r, inc) for ( int i = (int)(r) - 1; i >= (int)(l); (i) -= inc)
+#define whole(f, x, ...) ([&](decltype((x)) container) { return (f)( begin(container), end(container), ## __VA_ARGS__); })(x)
+#define rwhole(f, x, ...) ([&](decltype((x)) container) { return (f)( rbegin(container), rend(container), ## __VA_ARGS__); })(x)
+#define debug(...) debug_function(#__VA_ARGS__, __VA_ARGS__)
+template <typename T, typename... T2> void debug_function(string_view name, const T &a, T2 &&...rest) {
+  stack<char> bs;
+  string_view lbs = "({[<", rbs = ")}]>";
+  int end = name.size();
+  for ( int i = 0; i < (int)name.size(); i++ ) {
+    if ( lbs.find(name[i]) != string::npos ) bs.push(name[i]);
+    if ( rbs.find(name[i]) != string::npos && !bs.empty() ) bs.pop();
+    if ( name[i] == ',' && bs.empty() ) {
+      end = i;
+      break;
     }
   }
-  ll ans=0;
-  for(int i=0;i<n;i++){
-    ans+=cnt[1][i]*k;
-    ans%=p;
-    ans+=cnt[0][i]*((k*(k-1)/2)%p);
-    ans%=p;
-    //cnt*(1+k)*k/2;
-    //cnt*(1+k-1)*(k-1)/2;
+  cerr << name.substr(0, end) << ":" << a;
+  if constexpr ( sizeof...(rest) == 0 ) {
+    cerr << '\n';
+  } else {
+    cerr << ' ';
+    debug_function(name.substr(name.find_first_not_of(' ', end + 1)), forward<T2>(rest)...);
   }
-  cout<<ans<<endl;
-  return 0;
+}
+template <typename T> vector<T> make_vector(size_t a, T b) { return vector<T>(a, b); }
+template <typename... Ts> auto make_vector(size_t a, Ts... ts) { return vector<decltype(make_vector(ts...))>(a, make_vector(ts...)); }
+template <typename T1, typename T2> inline bool chmax(T1 &a, T2 b) { return a < b && (a = b, true); }
+template <typename T1, typename T2> inline bool chmin(T1 &a, T2 b) { return a > b && (a = b, true); }
+template <typename T1, typename T2> ostream &operator<<(ostream &os, const pair<T1, T2> &p) { os << p.first << ' ' << p.second; return os; }
+template <typename T1, typename T2> ostream &operator<<(ostream &os, const map<T1, T2> &v) { for ( pair<T1, T2> x : v ) { os << "(" << x.first <<", " << x.second << ")" << (v.rbegin()->first == x.first ? "" : ", "); } return os; }
+template <typename T> ostream &operator<<(ostream &os, queue<T> v) { if(!v.empty()) { os << v.front(); v.pop(); } while (!v.empty()) { os << " " << v.front(); v.pop(); } return os; }
+template <typename T> ostream &operator<<(ostream &os, stack<T> v) { if(!v.empty()) { os << v.top(); v.pop(); } while (!v.empty()) { os << " " << v.top(); v.pop(); } return os; }
+template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
+template <typename T> ostream &operator<<(ostream &os, const deque<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
+template <typename T> ostream &operator<<(ostream &os, const set<T> &v) { bool is_f = true; for ( T x : v ) { os << (is_f ? "" : " ") << x; is_f = false; } return os; }
+template <typename T1, typename T2> istream &operator>>(istream &is, pair<T1, T2> &p) { is >> p.first >> p.second; return is; }
+template <typename T> istream &operator>>(istream &is, vector<T> &v) { for (T &in : v) is >> in; return is; }
+struct IoSetup { IoSetup(int x = 15) { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(x); cerr << fixed << setprecision(x); } } iosetup;
+using ull = unsigned long long;
+using ll = long long;
+using Pll = pair<ll, ll>;
+using P = pair<int, int>;
+constexpr ll INF64 = INT64_MAX / 2;
+constexpr int INF32 = INT32_MAX / 2;
+constexpr int dy[] = { 0, -1, 1, 0, -1, 1, -1, 1 };
+constexpr int dx[] = { -1, 0, 0, 1, -1, -1, 1, 1 };
+constexpr int mod998244353 = 998244353;
+constexpr int mod1000000007 = (int)1e9 + 7;
+constexpr char newl = '\n';
+// clang-format on
+
+// }}}
+
+// 1-indexed
+template <typename T>
+class fenwick_tree {
+private:
+  int n;
+  vector<T> dat;
+
+  // [1,r]
+  T sum(int r) {
+    T res = 0;
+    for ( int k = r; k > 0; k -= (k & -k) ) {
+      res += dat[k];
+    }
+    return res;
+  }
+
+public:
+  fenwick_tree(int n_) : n(n_ + 1), dat(n_ + 1, 0) {}
+
+  void add(int i, T x) {
+    for ( int k = i; k < n; k += (k & -k) ) {
+      dat[k] += x;
+    }
+  }
+
+  // [l,r)
+  T sum(int l, int r) { return sum(r - 1) - sum(l - 1); }
+
+  // min({x | sum(x) >= w})
+  int lower_bound(T w) {
+    if ( w <= 0 ) return 0;
+    int x = 0, r = 1;
+    while ( r < n )
+      r <<= 1;
+    for ( int len = r; len > 0; len >>= 1 ) {
+      if ( x + len < n && dat[x + len] < w ) {
+        w -= dat[x + len];
+        x += len;
+      }
+    }
+    x++;
+    return x;
+  }
+
+  // min({x | sum(x) > w})
+  int upper_bound(T w) { return lower_bound(w + 1); }
+};
+
+template <typename T>
+long long inversion(vector<T> vs) {
+  int n = vs.size();
+  long long res = 0;
+  fenwick_tree<long long> ft(n + 2);
+  for ( T v : vs ) {
+    assert(1 <= v && v <= n);
+    res += ft.sum(v + 1, n + 1);
+    ft.add(v, 1);
+  }
+  return res;
+}
+
+template <typename T>
+struct compress {
+  vector<T> xs;
+  compress() {}
+  compress(int N) : xs(N, 0) {}
+  compress(const vector<T> &vs) : xs(vs) {}
+
+  void add(T x) { xs.emplace_back(x); }
+  void add(const vector<T> &vs) {
+    for ( const T &x : vs ) {
+      xs.emplace_back(x);
+    }
+  }
+
+  void build() {
+    sort(xs.begin(), xs.end());
+    xs.erase(unique(xs.begin(), xs.end()), xs.end());
+  }
+
+  vector<T> get(const vector<T> &vs) {
+    vector<T> res = vs;
+    for ( T &x : res ) {
+      x = lower_bound(xs.begin(), xs.end(), x) - xs.begin();
+    }
+    return res;
+  }
+
+  int get(T k) const {
+    return lower_bound(xs.begin(), xs.end(), k) - xs.begin();
+  }
+
+  const T &operator[](int k) const { return xs[k]; }
+};
+
+int main() {
+  ll n, k;
+  cin >> n >> k;
+  vector<int> as(n);
+  cin >> as;
+
+  compress comp(as);
+  comp.build();
+  auto cs = comp.get(as);
+  for ( auto &c : cs )
+    c++;
+  mint ans = inversion(cs) * k;
+
+  range(i, n) {
+    mint cnt = 0;
+    range(j, n) {
+      if ( as[i] > as[j] ) cnt++;
+    }
+    ans += cnt * (k * (k - 1) / 2);
+  }
+  cout << ans.val() << endl;
 }
