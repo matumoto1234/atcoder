@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-#include <atcoder/modint>
-using mint = atcoder::modint1000000007;
 
 
 // {{{
@@ -74,10 +72,8 @@ constexpr char newl = '\n';
 int main() {
   int n;
   cin>>n;
+  string s;
+  cin>>s;
 
-  mint ans=1;
-  range(i,1,n+1){
-    ans*=i;
-  }
-  cout<<ans.val()<<endl;
+  
 }

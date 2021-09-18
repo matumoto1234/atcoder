@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
-#include <atcoder/modint>
-using mint = atcoder::modint1000000007;
+#include <atcoder/maxflow>
+using namespace atcoder;
 
 
 // {{{
@@ -74,10 +74,34 @@ constexpr char newl = '\n';
 int main() {
   int n;
   cin>>n;
-
-  mint ans=1;
-  range(i,1,n+1){
-    ans*=i;
+  vector<P> ab(n);
+  for(auto &[a,b]:ab){
+    cin>>a>>b;
+    a--,b--;
   }
-  cout<<ans.val()<<endl;
+  vector<P> cd(n);
+  for(auto &[c,d]:cd){
+    cin>>c>>d;
+    c--,d--;
+  }
+
+  mf_graph<int> G(2*n+2);
+  range(i,n){
+    auto [a,b]=ab[i];
+    range(j,n){
+      auto [c,d]=cd[j];
+      if(a<c and b<d){
+        G.add_edge(i,n+j,1);
+      }
+    }
+  }
+
+  int src=2*n;
+  int sink=2*n+1;
+  range(i,n){
+    G.add_edge(src,i,1);
+    G.add_edge(i+n,sink,1);
+  }
+
+  cout<<G.flow(src,sink)<<endl;
 }
