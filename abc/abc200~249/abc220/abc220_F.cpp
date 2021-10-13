@@ -66,10 +66,10 @@ constexpr char newl = '\n';
 
 // }}}
 
-template <typename T>
+template <typename T, typename CostType>
 class re_rooting_dp {
 private:
-  vector<vector<pair<int, T>>> g;
+  vector<vector<pair<int, CostType>>> g;
   vector<vector<int>> seen_idx;
   vector<vector<T>> ch_tree;
   vector<int> pars, deps, sizs, order;
@@ -77,7 +77,7 @@ private:
 
   T identity;
   function<T(T, T)> merge;
-  function<T(T, int, re_rooting_dp<T> &)> update_node;
+  function<T(T, int, re_rooting_dp<T, CostType> &)> add_node;
 
   void dfs(int v, int par, int &idx) {
     order[idx++] = v;
@@ -87,25 +87,25 @@ private:
       if ( to == par ) continue;
       dfs(to, v, idx);
     }
+    if ( par != -1 ) sizs[par] = ++sizs[v];
   }
 
   void post_order() {
-    int par_idx = -1;
-    T res = 0;
     for ( int i = order.size() - 1; i >= 1; i-- ) {
       int v = order[i];
       int par = pars[v];
-      if ( par != -1 ) sizs[par] = ++sizs[v];
+      int par_idx = -1;
+      T accum = identity;
       for ( int j = 0; j < (int)g[v].size(); j++ ) {
         int to = g[v][j].first;
         if ( to == par ) {
           par_idx = j;
           continue;
         }
-        res = merge(res, ch_tree[v][j]);
+        accum = merge(accum, ch_tree[v][j]);
       }
       if ( par_idx != -1 ) {
-        ch_tree[par][seen_idx[v][par_idx]] = update_node(res, v, *this);
+        ch_tree[par][seen_idx[v][par_idx]] = add_node(accum, v, *this);
       }
     }
   }
@@ -113,32 +113,32 @@ private:
   void pre_order() {
     for ( auto v : order ) {
       int adj_cnt = g[v].size();
-      vector<T> sum_back(adj_cnt);
-      sum_back.back() = identity;
+      vector<T> accum_back(adj_cnt);
+      accum_back.back() = identity;
       for ( int j = adj_cnt - 1; j >= 1; j-- ) {
-        sum_back[j - 1] = merge(sum_back[j], ch_tree[v][j]);
+        accum_back[j - 1] = merge(accum_back[j], ch_tree[v][j]);
       }
-      T sum_front = identity;
+      T accum_front = identity;
       for ( int j = 0; j < adj_cnt; j++ ) {
-        T res = update_node(merge(sum_front, sum_back[j]), v, *this);
+        T res = add_node(merge(accum_front, accum_back[j]), v, *this);
         ch_tree[g[v][j].first][seen_idx[v][j]] = res;
-        sum_front = merge(sum_front, ch_tree[v][j]);
+        accum_front = merge(accum_front, ch_tree[v][j]);
       }
-      results[v] = update_node(sum_front, v, *this);
+      results[v] = add_node(accum_front, v, *this);
     }
   }
 
 public:
   re_rooting_dp(int n, T id, function<T(T, T)> f1,
-      function<T(T, int, re_rooting_dp<T> &)> f2)
+      function<T(T, int, re_rooting_dp<T, CostType> &)> f2)
       : g(n),
         seen_idx(n) {
     identity = id;
     merge = f1;
-    update_node = f2;
+    add_node = f2;
   }
 
-  void add_edge(int from, int to, T cost) {
+  void add_edge(int from, int to, CostType cost) {
     g[from].emplace_back(to, cost);
     seen_idx[to].emplace_back(g[from].size() - 1);
   }
@@ -148,7 +148,7 @@ public:
     deps.assign(g.size(), -1);
     sizs.assign(g.size(), 0);
     order.assign(g.size(), -1);
-    results.assign(g.size(), -1);
+    results.assign(g.size(), identity);
     ch_tree.resize(g.size());
     for ( int i = 0; i < (int)g.size(); i++ ) {
       ch_tree[i].assign(g[i].size(), identity);
@@ -164,36 +164,26 @@ public:
   int parent(int v) { return pars[v]; }
   T query(int v) { return results[v]; }
   T operator[](int v) { return results[v]; }
-
-  template <typename Type>
-  friend Type update(Type res, int v, re_rooting_dp<Type> &tree);
 };
 
-ll e() {
-  return 0;
+Pll e() {
+  return make_pair<ll, ll>(0, 0);
 }
 
-ll op(ll a, ll b) {
-  return a + b;
+Pll op(Pll a, Pll b) {
+  return make_pair<ll, ll>(a.first + b.first, a.second + b.second);
 }
 
-ll update(ll res, int v, re_rooting_dp<ll> &tree) {
-  int par = tree.parent(v);
-  debug(par);
-  if ( par != -1 ){
-    debug(tree.size(par));
-    res += tree.size(par);
-  }
-  debug(tree.size(v));
-  res -= tree.size(v);
-  return res;
+Pll add_node(Pll res, int v, re_rooting_dp<Pll, ll> &tree) {
+  auto [child_result, mydistance] = res;
+  return make_pair<ll, ll>(child_result + mydistance, mydistance + 1);
 }
 
 int main() {
   int n;
   cin >> n;
 
-  re_rooting_dp<ll> tree(n, e(), op, update);
+  re_rooting_dp<Pll, ll> tree(n, e(), op, add_node);
   range(i, n - 1) {
     int u, v;
     cin >> u >> v;
@@ -205,6 +195,6 @@ int main() {
   tree.build(0);
 
   range(i, n) {
-    cout << tree[i] << newl;
+    cout << tree[i].first << newl;
   }
 }

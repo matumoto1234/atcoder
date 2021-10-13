@@ -164,16 +164,19 @@ int main() {
   cmp.build();
   auto cs=cmp.get(as);
 
-  debug(cs);
+  fenwick_tree<mint> ft(n+1);
 
-  fenwick_tree<int> ft(n+1);
   mint ans=0;
   rrange(i,n){
     if(i<n-1){
-      ans+=mint(2).pow(ft.sum(cs[i],n+1)) - 1;
+      // {j | i < j and as[i] <= as[j]}
+      // sum 2^(j-i-1)
+      // = sum 2^(j) * 2^(-i-1)
+      // = 2*(-i-1) * sum 2^(j)
+      mint sum=ft.sum(cs[i],n+1);
+      ans+=sum*mint(2).pow(i+1).inv();
     }
-    debug(ans.val());
-    ft.add(cs[i],1);
+    ft.add(cs[i],mint(2).pow(i));
   }
   cout<<ans.val()<<endl;
 }

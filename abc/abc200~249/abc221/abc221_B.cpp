@@ -1,6 +1,32 @@
+#if !__INCLUDE_LEVEL__
+#include __FILE__
+
+int main() {
+  string s;
+  cin>>s;
+  rwhole(sort,s);
+  string a=sl(s,0,len(s),2);
+  string b=sl(s,1,len(s),2);
+
+  range(i,min(len(a),len(b))){
+    if(a[i]!=b[i]){
+      swap(a[i],b[i]);
+      break;
+    }
+  }
+  cout<<stoll(a)*stoll(b)<<endl;
+}
+
+
+
+
+
+
+
+
+#else
 #include <bits/stdc++.h>
 using namespace std;
-
 
 // {{{
 
@@ -67,18 +93,73 @@ constexpr char newl = '\n';
 
 // }}}
 
+struct get_slice {
+  static constexpr int init = INT32_MAX;
+  get_slice() {}
 
-
-int main() {
-  string s,t;
-  cin>>s>>t;
-
-  bool ans=false;
-  range(i,1,len(s)){
-    if(s==t) ans=true;
-    swap(s[i-1],s[i]);
-    if(s==t) ans=true;
-    swap(s[i-1],s[i]);
+  template <typename T>
+  vector<T> operator()(const vector<T> &v, int l, int r = init, int stride = init) {
+    assert(stride != 0);
+    if ( r == init ) r = v.size();
+    if ( stride == init ) stride = 1;
+    vector<T> res;
+    int start = (stride > 0 ? l : r - 1);
+    for ( int i = start; (stride > 0 ? i < r : i >= l); i += stride ) {
+      if ( i >= 0 ) {
+        res.emplace_back(v[i]);
+      } else {
+        res.emplace_back(v.end()[i]);
+      }
+    }
+    return res;
   }
-  cout<<(ans?"Yes":"No")<<endl;
+
+  string operator()(const string &s, int l, int r = init, int stride = init) {
+    assert(stride != 0);
+    if ( r == init ) r = s.size();
+    if ( stride == init ) stride = 1;
+    string res;
+    int start = (stride > 0 ? l : r - 1);
+    for ( int i = start; (stride > 0 ? i < r : i >= l); i += stride ) {
+      if ( i >= 0 ) {
+        res.push_back(s[i]);
+      } else {
+        res.push_back(s.end()[i]);
+      }
+    }
+    return res;
+  }
+} sl;
+
+template <typename iter>
+vector<int> sorted_index(const iter &first, const iter &last) {
+  auto tmp = *first;
+  vector<decltype(tmp)> a(first, last);
+  vector<int> res(a.size());
+  iota(res.begin(), res.end(), 0);
+  stable_sort(res.begin(), res.end(), [&](int i, int j) {
+    return a[i] < a[j];
+  });
+  return res;
 }
+
+template <typename T1, typename T2>
+vector<pair<T1, T2>> aggregate(const vector<T1> &a, const vector<T2> &b) {
+  vector<pair<T1, T2>> res;
+  int mi = min(a.size(), b.size());
+  int ma = max(a.size(), b.size());
+  res.reserve(ma);
+  for ( int i = 0; i < mi; i++ ) {
+    res.emplace_back(a[i], b[i]);
+  }
+
+  for ( int i = mi; i < ma; i++ ) {
+    if ( a.size() > b.size() ) {
+      res.emplace_back(a[i]);
+    } else {
+      res.emplace_back(b[i]);
+    }
+  }
+  return res;
+}
+#endif
