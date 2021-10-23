@@ -436,67 +436,42 @@ constexpr char newl = '\n';
 
 // }}}
 
-string s, t;
-bool has_same = false;
-bool ans = false;
-void dfs(int dep) {
-  if (dep == 3) {
-    if (s == t) ans = true;
-    return;
-  }
-
-  rep (i, len(t)) {
-    rep (j, i + 1, len(t)) {
-      swap(t[i], t[j]);
-
-      if (has_same and s == t) ans = true;
-      dfs(dep + 1);
-
-      swap(t[i], t[j]);
-    }
-  }
-}
-
-bool contains_same(string s) {
-  auto cnt = counter(s);
-  for (auto [key, val]: cnt) {
-    if (val >= 2) return true;
-  }
-  return false;
-}
-
 int main() {
-  string a, b;
-  cin >> a >> b;
+  string s;
+  cin >> s;
 
-  if (a == b) {
-    if (contains_same(a)) {
-      cout << "YES" << endl;
-    } else {
-      cout << "NO" << endl;
+  int combo_cnt = 0;
+  int kaburin = 5;
+
+  vector<bool> charging(len(s) + 100, false);
+  vector<int> combo(len(s) + 100, 0);
+  vector<int> comeback(len(s) + 100, 0);
+  vector<ll> damage(len(s) + 100, 0);
+
+  rep (i, len(s)) {
+    combo_cnt += combo[i];
+    kaburin += comeback[i];
+
+    if (charging[i]) continue;
+
+    if (s[i] == 'N' and kaburin >= 1) {
+      kaburin--;
+      damage[i + 2] += 10 + 1 * (combo_cnt / 10);
+      combo[i + 2]++;
+      comeback[i + 7]++;
     }
-    return 0;
+    if (s[i] == 'C' and kaburin >= 3) {
+      kaburin -= 3;
+      damage[i + 4] += 50 + 5 * (combo_cnt / 10);
+      combo[i + 4]++;
+      comeback[i + 9] += 3;
+
+      charging[i] = true;
+      charging[i + 1] = true;
+      charging[i + 2] = true;
+    }
   }
 
-  if (counter(a) != counter(b)) {
-    cout << "NO" << endl;
-    return 0;
-  }
-
-  if (contains_same(b)) has_same = true;
-
-  rep (i, len(a)) {
-    if (a[i] == b[i]) continue;
-    s += a[i];
-    t += b[i];
-  }
-
-  if (len(s) == 1 or len(s) > 20) {
-    cout << "NO" << endl;
-    return 0;
-  }
-
-  dfs(0);
-
-  cout << (ans ? "YES" : "NO") << endl;
+  ll ans = whole(accumulate, damage, 0LL);
+  cout << ans << endl;
 }
