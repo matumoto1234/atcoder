@@ -4,9 +4,6 @@ using namespace std;
 #include <boost/range/adaptors.hpp>
 using namespace boost::adaptors;
 
-#include <boost/multiprecision/cpp_int.hpp>
-using cint = boost::multiprecision::cpp_int;
-
 // {{{ templates
 
 // clang-format off
@@ -69,21 +66,27 @@ constexpr char newl = '\n';
 
 // }}} templates
 
+
+#include "tools/cppint.hpp"
+
+using namespace tools;
+
+
 int main() {
-  int n, k;
+  cint n, k;
   cin >> n >> k;
-  vector<cint> as(n);
+  vector<cint> as((int)n);
   cin >> as;
 
   cint valid = -1;
   cint invalid = INF64;
-  auto is_valid = [&](cint m) {
+  auto is_valid = [&](cint m) -> bool {
     cint sum = 0;
-    rep(i, n) { sum += min(as[i], m); }
-
+    for (auto a: as) {
+      sum += min(a, m);
+    }
     return m * k <= sum;
   };
-
   while (abs(valid - invalid) > 1) {
     cint mid = (valid + invalid) / 2;
     if (is_valid(mid))
@@ -92,5 +95,5 @@ int main() {
       invalid = mid;
   }
 
-  cout<<valid<<endl;
+  cout << valid << endl;
 }

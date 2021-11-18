@@ -66,27 +66,7 @@ constexpr char newl = '\n';
 
 // }}} templates
 
-
-#include "tools/counter.hpp"
-
-using namespace tools;
-
 int main() {
   int n;
-  cin >> n;
-  vector<int> as(n);
-  cin >> as;
-
-  for (auto &a: as) {
-    a %= 200;
-  }
-
-  ll ans = 0;
-
-  auto mp = whole(counter, as);
-  for (auto [val, cnt]: mp) {
-    ans += (ll)mp[val] * (mp[val] - 1) / 2;
-  }
-
-  cout << ans << endl;
+  cin>>n;
 }

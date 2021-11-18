@@ -1,3 +1,4 @@
+#line 1 "main.cpp"
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -68,7 +69,27 @@ constexpr char newl = '\n';
 
 
 
-#include "math/binomial.hpp"
+#line 2 "/home/matumoto/code_box/library/math/binomial.hpp"
+
+#line 2 "/home/matumoto/code_box/library/math/base.hpp"
+
+namespace math {
+  using namespace std;
+  using ll = long long;
+}
+#line 4 "/home/matumoto/code_box/library/math/binomial.hpp"
+
+namespace math {
+  ll binomial(ll n, ll r) {
+    ll res = 1;
+    for (ll i = 0; i < r; i++) {
+      res *= n - i;
+      res /= i + 1;
+    }
+    return res;
+  }
+} // namespace math
+#line 72 "main.cpp"
 
 using namespace math;
 
