@@ -1,3 +1,4 @@
+#line 1 "main.cpp"
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -63,46 +64,179 @@ constexpr char newl = '\n';
 
 // }}} templates
 
+#line 2 "/home/matumoto/code_box/library/tools/compress.hpp"
 
+#line 2 "/home/matumoto/code_box/library/tools/base.hpp"
 
-int main() {
-  string s;
-  cin >> s;
+namespace tools {
+  using namespace std;
+}
+#line 4 "/home/matumoto/code_box/library/tools/compress.hpp"
 
-  ll ans = 0;
-  whole(reverse, s);
+#line 7 "/home/matumoto/code_box/library/tools/compress.hpp"
 
-  vector<int> cnt(26, 0);
+namespace tools {
+  // verify:ABC036_C
+  template <typename T>
+  struct Compress {
+    vector<T> xs;
+    Compress() {}
+    Compress(int N): xs(N, 0) {}
+    Compress(const vector<T> &vs): xs(vs) {}
 
-  rep(i, len(s) - 1) {
-    int idx = s[i] - 'a';
-    if (s[i] == s[i + 1]) {
-      rep(j, 26) {
-        if (idx != j) ans += cnt[j];
-        cnt[j] = 0;
+    void set(int i, T x) { xs[i] = x; }
+
+    void set(const vector<T> &vs) {
+      for (int i = 0; i < min<int>(xs.size(), vs.size()); i++) {
+        xs[i] = vs[i];
       }
-      cnt[idx] = i + 1;
-      continue;
     }
 
-    cnt[idx]++;
+    void add(T x) { xs.emplace_back(x); }
+
+    void add(const vector<T> &vs) {
+      for (const T &x: vs) {
+        xs.emplace_back(x);
+      }
+    }
+
+    Compress<T> build() {
+      sort(xs.begin(), xs.end());
+      xs.erase(unique(xs.begin(), xs.end()), xs.end());
+      return *this;
+    }
+
+    vector<T> get(const vector<T> &vs) const {
+      vector<T> res = vs;
+      for (T &x: res) {
+        x = lower_bound(xs.begin(), xs.end(), x) - xs.begin();
+      }
+      return res;
+    }
+
+    int get(T k) const { return lower_bound(xs.begin(), xs.end(), k) - xs.begin(); }
+
+    const T &operator[](int k) const { return xs[k]; }
+  };
+} // namespace tools
+#line 67 "main.cpp"
+using namespace tools;
+
+#line 2 "/home/matumoto/code_box/library/data-structure/fenwick-tree.hpp"
+
+#line 2 "/home/matumoto/code_box/library/data-structure/base.hpp"
+
+namespace data_structure {
+  using namespace std;
+}
+#line 4 "/home/matumoto/code_box/library/data-structure/fenwick-tree.hpp"
+
+#line 6 "/home/matumoto/code_box/library/data-structure/fenwick-tree.hpp"
+
+namespace data_structure {
+  // verify:ARC033_C
+  template <typename T>
+  class FenwickTree {
+  private:
+    int n;
+    vector<T> dat;
+
+    // [1,r]
+    T sum(int r) {
+      T res = 0;
+      for (int k = r; k > 0; k -= (k & -k)) {
+        res += dat[k];
+      }
+      return res;
+    }
+
+  public:
+    FenwickTree(int n_): n(n_ + 2), dat(n_ + 2, 0) {}
+
+    // i:0-indexed
+    void add(int i, T x) {
+      for (int k = ++i; k < n; k += (k & -k)) {
+        dat[k] += x;
+      }
+    }
+
+    T get(int k) { return dat[++k]; }
+
+    // [l,r)
+    T sum(int l, int r) { return sum(r) - sum(l); }
+
+    // min({x | sum(x) >= w})
+    int lower_bound(T w) {
+      if (w <= 0) return 0;
+      int x = 0, twopow = 1;
+      while (twopow < n) {
+        twopow <<= 1;
+      }
+      for (int sz = twopow; sz > 0; sz >>= 1) {
+        if (x + sz < n and dat[x + sz] < w) {
+          w -= dat[x + sz];
+          x += sz;
+        }
+      }
+      return x;
+    }
+
+    // min({x | sum(x) > w})
+    int upper_bound(T w) { return lower_bound(w + 1); }
+  };
+} // namespace data_structure
+#line 70 "main.cpp"
+using namespace data_structure;
+
+int main() {
+  int n;
+  cin >> n;
+
+  Compress<int> comp;
+
+  vector<int> ls(n), rs(n);
+
+  rep(i, n) {
+    int &l = ls[i], &r = rs[i];
+    cin >> l >> r;
+
+    comp.add(l);
+    comp.add(r);
   }
 
-  cout << ans << endl;
+  comp.build();
+
+  FenwickTree<int> ft(n);
+
+  int mn = INF32;
+  int mx = -INF32;
+  int cnt = 0;
+
+  rep(i, n) {
+    int l = ls[i], r = rs[i];
+
+    chmin(mn, l);
+    chmin(mn, r);
+    chmax(mx, l);
+    chmax(mx, r);
+
+    ft.add(comp.get(l), 1);
+    ft.add(comp.get(r), 1);
+    cnt += 2;
+
+    int idx1 = ft.lower_bound(cnt / 2 - 1);
+    int idx2 = ft.lower_bound(cnt / 2);
+
+    int x = (comp[idx1] + comp[idx2]) / 2;
+
+    debug(cnt / 2 - 1, cnt / 2);
+    debug(idx1, idx2, comp[idx1], comp[idx2], x, mn, mx);
+    int ans = INF32;
+    if (x < mn) chmin(ans, mn - x);
+    if (x > mx) chmin(ans, x - mx);
+
+    if (ans == INF32) ans = 0;
+
+    cout << ans << newl;
+  }
 }
-
-/*
-acceppt
-tppecca
-ほしい情報
-iまでs[i]以外の文字がいくつあるか
-i
-
-pppeppcca
-tpp
-i文字目までのcounterを持っておく
-s[i]を++していく
-いったん発動したら、s[i]=iにしてそれ以外を0
-
-
-*/

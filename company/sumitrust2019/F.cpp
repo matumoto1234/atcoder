@@ -63,46 +63,118 @@ constexpr char newl = '\n';
 
 // }}} templates
 
-
-
-int main() {
-  string s;
-  cin >> s;
-
-  ll ans = 0;
-  whole(reverse, s);
-
-  vector<int> cnt(26, 0);
-
-  rep(i, len(s) - 1) {
-    int idx = s[i] - 'a';
-    if (s[i] == s[i + 1]) {
-      rep(j, 26) {
-        if (idx != j) ans += cnt[j];
-        cnt[j] = 0;
-      }
-      cnt[idx] = i + 1;
-      continue;
-    }
-
-    cnt[idx]++;
-  }
-
-  cout << ans << endl;
+namespace tools {
+  using namespace std;
 }
 
-/*
-acceppt
-tppecca
-ほしい情報
-iまでs[i]以外の文字がいくつあるか
-i
+#include <boost/multiprecision/cpp_int.hpp>
+#include <cassert>
+#include <string>
 
-pppeppcca
-tpp
-i文字目までのcounterを持っておく
-s[i]を++していく
-いったん発動したら、s[i]=iにしてそれ以外を0
+namespace tools {
+  namespace cpp_int_helper {
+    namespace mp = boost::multiprecision;
 
+    string to_string(mp::cpp_int a) {
+      string res = "";
+      if (a < 0) {
+        a *= -1;
+        res += "-";
+      }
 
-*/
+      while (a) {
+        res += static_cast<char>(a % 10 + '0');
+        a /= 10;
+      }
+      return res;
+    }
+
+    mp::cpp_int gcd(mp::cpp_int a, mp::cpp_int b) {
+      mp::cpp_int tmp;
+      while (b > 0) {
+        tmp = a;
+        a = b;
+        b = tmp % b;
+      }
+      return a;
+    }
+
+    mp::cpp_int lcm(mp::cpp_int a, mp::cpp_int b) { return a * b / gcd(a, b); }
+
+    namespace power_helper {
+
+      mp::cpp_int extgcd(mp::cpp_int a, mp::cpp_int b, mp::cpp_int &x, mp::cpp_int &y) {
+        if (b == 0) {
+          x = 1;
+          y = 0;
+          return a;
+        }
+        mp::cpp_int d = extgcd(b, a % b, y, x);
+        y = y - (a / b) * x;
+        return d;
+      }
+
+    } // namespace power_helper
+
+    mp::cpp_int power(mp::cpp_int a, mp::cpp_int e, mp::cpp_int p = -1) {
+      assert(p != 0);
+      assert(p >= -1);
+
+      if (e < 0) {
+        assert(p != -1 and gcd(a, p) == 1);
+        mp::cpp_int x, y;
+        power_helper::extgcd(a, p, x, y);
+        a = (x % p + p) % p;
+        e *= -1;
+      }
+
+      mp::cpp_int res = 1;
+      while (e > 0) {
+        if (e & 1) {
+          res *= a;
+          if (p != -1) res %= p;
+        }
+        a *= a;
+        if (p != -1) a %= p;
+        e >>= 1;
+      }
+      return res;
+    }
+
+  } // namespace cpp_int_helper
+  using namespace cpp_int_helper;
+  using cint = boost::multiprecision::cpp_int;
+} // namespace tools
+using namespace tools;
+
+int main() {
+  cint t1, t2, a1, a2, b1, b2;
+  cin >> t1 >> t2 >> a1 >> a2 >> b1 >> b2;
+
+  cint p = (a1 - b1) * t1;
+  cint q = (a2 - b2) * t2;
+
+  if (p > 0) {
+    p *= -1;
+    q *= -1;
+  }
+
+  if (p + q < 0) {
+    cout << 0 << endl;
+    return 0;
+  }
+
+  if (p + q == 0) {
+    cout << "infinity" << endl;
+    return 0;
+  }
+
+  cint quotient = (-p) / (p + q);
+  cint remainder = (-p) % (p + q);
+
+  if (remainder == 0) {
+    cout << 2 * quotient << endl;
+  } else {
+    cout << 2 * quotient + 1 << endl;
+  }
+}

@@ -66,43 +66,7 @@ constexpr char newl = '\n';
 
 
 int main() {
-  string s;
-  cin >> s;
-
-  ll ans = 0;
-  whole(reverse, s);
-
-  vector<int> cnt(26, 0);
-
-  rep(i, len(s) - 1) {
-    int idx = s[i] - 'a';
-    if (s[i] == s[i + 1]) {
-      rep(j, 26) {
-        if (idx != j) ans += cnt[j];
-        cnt[j] = 0;
-      }
-      cnt[idx] = i + 1;
-      continue;
-    }
-
-    cnt[idx]++;
-  }
-
-  cout << ans << endl;
+  int m;
+  cin >> m;
+  cout << 24 - m + 24 << endl;
 }
-
-/*
-acceppt
-tppecca
-ほしい情報
-iまでs[i]以外の文字がいくつあるか
-i
-
-pppeppcca
-tpp
-i文字目までのcounterを持っておく
-s[i]を++していく
-いったん発動したら、s[i]=iにしてそれ以外を0
-
-
-*/
