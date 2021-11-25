@@ -64,76 +64,171 @@ constexpr char newl = '\n';
 // }}} templates
 
 
+namespace data_structure {
+  using namespace std;
+}
+
+#include <vector>
+
+namespace data_structure {
+  // verify:ARC033_C
+  template <typename T>
+  class FenwickTree {
+  private:
+    int n;
+    vector<T> dat;
+
+    // [1,r]
+    T sum(int r) {
+      T res = 0;
+      for (int k = r; k > 0; k -= (k & -k)) {
+        res += dat[k];
+      }
+      return res;
+    }
+
+  public:
+    FenwickTree(int n_): n(n_ + 2), dat(n_ + 2, 0) {}
+
+    // i:0-indexed
+    void add(int i, T x) {
+      for (int k = ++i; k < n; k += (k & -k)) {
+        dat[k] += x;
+      }
+    }
+
+    T get(int k) { return dat[++k]; }
+
+    // [l,r)
+    T sum(int l, int r) { return sum(r) - sum(l); }
+
+    // min({x | sum(x) >= w})
+    int lower_bound(T w) {
+      if (w <= 0) return 0;
+      int x = 0, twopow = 1;
+      while (twopow < n) {
+        twopow <<= 1;
+      }
+      for (int sz = twopow; sz > 0; sz >>= 1) {
+        if (x + sz <= n and dat[x + sz] < w) {
+          w -= dat[x + sz];
+          x += sz;
+        }
+      }
+      return x;
+    }
+
+    // min({x | sum(x) > w})
+    int upper_bound(T w) { return lower_bound(w + 1); }
+  };
+} // namespace data_structure
+using namespace data_structure;
+
+namespace tools {
+  using namespace std;
+}
+
+#include <algorithm>
+#include <vector>
+
+namespace tools {
+  // verify:ABC036_C
+  template <typename T>
+  struct Compress {
+    vector<T> xs;
+    Compress() {}
+    Compress(int N): xs(N, 0) {}
+    Compress(const vector<T> &vs): xs(vs) {}
+
+    void set(int i, T x) { xs[i] = x; }
+
+    void set(const vector<T> &vs) {
+      for (int i = 0; i < min<int>(xs.size(), vs.size()); i++) {
+        xs[i] = vs[i];
+      }
+    }
+
+    void add(T x) { xs.emplace_back(x); }
+
+    void add(const vector<T> &vs) {
+      for (const T &x: vs) {
+        xs.emplace_back(x);
+      }
+    }
+
+    Compress<T> build() {
+      sort(xs.begin(), xs.end());
+      xs.erase(unique(xs.begin(), xs.end()), xs.end());
+      return *this;
+    }
+
+    vector<T> get(const vector<T> &vs) const {
+      vector<T> res = vs;
+      for (T &x: res) {
+        x = lower_bound(xs.begin(), xs.end(), x) - xs.begin();
+      }
+      return res;
+    }
+
+    int get(T k) const { return lower_bound(xs.begin(), xs.end(), k) - xs.begin(); }
+
+    const T &operator[](int k) const { return xs[k]; }
+  };
+} // namespace tools
+using namespace tools;
+
+namespace math {
+  using namespace std;
+  using ll = long long;
+} // namespace math
+
+#include <cassert>
+
+namespace math {
+  ll ceil_div(ll n, ll d) {
+    assert(d != 0);
+    return n / d + ((n ^ d >= 0) and (n % d));
+  }
+} // namespace math
+using namespace math;
 
 int main() {
-  int n, q;
-  cin >> n >> q;
+  ll n, d, a;
+  cin >> n >> d >> a;
 
-  constexpr int MAX = 3e5;
-
-  vector<map<int, int>> groups(MAX);
-
-  vector<int> rates(n), affiliations(n);
-
-  rep(i, n) {
-    int a, b;
-    cin >> a >> b;
-
-    b--;
-
-    rates[i] = a;
-    affiliations[i] = b;
-    groups[b][rates[i]]++;
+  vector<pll> enemies(n);
+  for (auto &[x, h]: enemies) {
+    cin >> x >> h;
   }
 
-  map<int, int> group_maxs;
+  whole(sort, enemies);
 
-  rep(i, MAX) {
-    if (groups[i].empty()) continue;
-    auto [rate, idx] = *groups[i].rbegin();
-    group_maxs[rate]++;
+  Compress<ll> cs;
+
+  for (auto [x, h]: enemies) {
+    cs.add(x);
+    cs.add(x + 2 * d);
   }
 
-  while (q--) {
-    int c, d;
-    cin >> c >> d;
+  cs.build();
 
-    c--, d--;
+  ll nn = 2 * cs.xs.size();
+  FenwickTree<ll> ft(nn);
+  ll ans = 0;
 
-    int rate = rates[c];
-    int old = affiliations[c];
-    affiliations[c] = d;
+  for (auto [x, h]: enemies) {
+    ll cx = cs.get(x);
+    ll already = ft.sum(cx, nn);
+    h -= already;
 
+    if (h < 0) continue;
 
-    // erase part
-    int old_group_max_rate = groups[old].rbegin()->first;
-    if (rate == old_group_max_rate) {
-      group_maxs[rate]--;
-      if (len(groups[old]) >= 2) {
-        int old_group_second_max_rate = next(groups[old].rbegin())->first;
-        group_maxs[old_group_second_max_rate]++;
-      }
-      if (group_maxs[rate] == 0) group_maxs.erase(rate);
-    }
+    ll cnt = ceil_div(h, a);
+    ans += cnt;
 
-    groups[old][rate]--;
-    if (groups[old][rate] == 0) groups[old].erase(rate);
-
-
-    // insert part
-    if (groups[d].empty()) {
-      group_maxs[rate]++;
-    } else {
-      int new_group_old_max_rate = groups[d].rbegin()->first;
-      if (rate > new_group_old_max_rate) {
-        group_maxs[new_group_old_max_rate]--;
-        if (group_maxs[new_group_old_max_rate] == 0) group_maxs.erase(new_group_old_max_rate);
-        group_maxs[rate]++;
-      }
-    }
-
-    groups[d][rate]++;
-
-    cout << group_maxs.begin()->first << endl;
+    ll cx2 = cs.get(x + 2 * d);
+    ft.add(cx2, cnt * a);
   }
+
+  cout << ans << endl;
 }

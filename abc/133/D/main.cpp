@@ -66,74 +66,21 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n, q;
-  cin >> n >> q;
+  int n;
+  cin >> n;
+  vector<int> as(n);
+  cin >> as;
 
-  constexpr int MAX = 3e5;
-
-  vector<map<int, int>> groups(MAX);
-
-  vector<int> rates(n), affiliations(n);
-
+  int x = 0;
   rep(i, n) {
-    int a, b;
-    cin >> a >> b;
-
-    b--;
-
-    rates[i] = a;
-    affiliations[i] = b;
-    groups[b][rates[i]]++;
+    int a = (i % 2 ? -1 : 1) * as[i];
+    x += a;
   }
 
-  map<int, int> group_maxs;
+  vector<int> xs(n);
+  xs[0] = x;
 
-  rep(i, MAX) {
-    if (groups[i].empty()) continue;
-    auto [rate, idx] = *groups[i].rbegin();
-    group_maxs[rate]++;
-  }
+  rep(i, 1, n) xs[i] = 2 * as[i - 1] - xs[i - 1];
 
-  while (q--) {
-    int c, d;
-    cin >> c >> d;
-
-    c--, d--;
-
-    int rate = rates[c];
-    int old = affiliations[c];
-    affiliations[c] = d;
-
-
-    // erase part
-    int old_group_max_rate = groups[old].rbegin()->first;
-    if (rate == old_group_max_rate) {
-      group_maxs[rate]--;
-      if (len(groups[old]) >= 2) {
-        int old_group_second_max_rate = next(groups[old].rbegin())->first;
-        group_maxs[old_group_second_max_rate]++;
-      }
-      if (group_maxs[rate] == 0) group_maxs.erase(rate);
-    }
-
-    groups[old][rate]--;
-    if (groups[old][rate] == 0) groups[old].erase(rate);
-
-
-    // insert part
-    if (groups[d].empty()) {
-      group_maxs[rate]++;
-    } else {
-      int new_group_old_max_rate = groups[d].rbegin()->first;
-      if (rate > new_group_old_max_rate) {
-        group_maxs[new_group_old_max_rate]--;
-        if (group_maxs[new_group_old_max_rate] == 0) group_maxs.erase(new_group_old_max_rate);
-        group_maxs[rate]++;
-      }
-    }
-
-    groups[d][rate]++;
-
-    cout << group_maxs.begin()->first << endl;
-  }
+  cout << xs << endl;
 }
