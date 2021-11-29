@@ -64,40 +64,10 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
+
 int main() {
-  int n;
-  cin >> n;
+  ll l;
+  cin >> l;
 
-  vector<int> as(n);
-  cin >> as;
-
-  rep(i, n) as[i] %= 200;
-
-  auto used = make_vector(200, false);
-  auto memo = make_vector(200, 0, 0);
-
-  int m = min(8, n);
-
-  rep(i, 1, 1 << m) {
-    int sum = 0;
-    vector<int> vs;
-    rep(j, m) {
-      if (i >> j & 1) {
-        sum += as[j];
-        sum %= 200;
-        vs.emplace_back(j + 1);
-      }
-    }
-
-    if (used[sum]) {
-      cout << "Yes" << endl;
-      cout << len(memo[sum]) << ' ' << memo[sum] << endl;
-      cout << len(vs) << ' ' << vs << endl;
-      return 0;
-    }
-    used[sum] = true;
-    memo[sum] = vs;
-  }
-
-  cout << "No" << endl;
+  cout << (l / 3.0) * (l / 3.0) * (l / 3.0) << endl;
 }
