@@ -66,6 +66,35 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin>>n;
+  int n,k;
+  cin>>n>>k;
+
+  vector<pll> wp(n);
+  for(auto &[w,p]:wp){
+    cin>>w>>p;
+    p*=100;
+  }
+
+  vector<int> use(n);
+  rep(i,k) use[i] = 1;
+
+  whole(sort,use);
+
+  double ans = -INF64;
+
+  do{
+    ll sum_water = 0;
+    ll sum_solt = 0;
+    rep(i,n){
+      if(use[i]){
+        auto [w,p]=wp[i];
+        sum_water+=w;
+        sum_solt+=p*w;
+      }
+    }
+
+    chmax(ans, sum_solt/sum_water/100.0);
+  }while(whole(next_permutation, use));
+
+  cout<<ans<<endl;
 }

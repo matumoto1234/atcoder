@@ -66,6 +66,25 @@ constexpr char newl = '\n';
 
 
 int main() {
+  int h, w;
+  cin >> h >> w;
   int n;
-  cin>>n;
+  cin >> n;
+  vector<int> as(n);
+  cin >> as;
+
+  auto cs = make_vector(h, 0, 0);
+
+  int cnt = 0;
+
+  rep(i, n) {
+    rep(j, as[i]) {
+      cs[cnt / w].push_back(i + 1);
+      cnt++;
+    }
+  }
+
+  rep(i, 1, h, 2) { whole(reverse, cs[i]); }
+
+  rep(i, h) { cout << cs[i] << endl; }
 }

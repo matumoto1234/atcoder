@@ -66,6 +66,8 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin>>n;
+  ll n, k;
+  cin >> n >> k;
+
+  cout << (long double)(k * (n - k + 1)) / (n * n * n) << endl;
 }

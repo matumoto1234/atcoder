@@ -66,6 +66,19 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin>>n;
+  ll n, a, b;
+  cin >> n >> a >> b;
+  ll p, q, r, s;
+  cin >> p >> q >> r >> s;
+
+  for (ll i = p; i <= q; i++) {
+    for (ll j = r; j <= s; j++) {
+      if ((i + j == a + b) or (i - j == a - b)) {
+        cout << "#";
+      } else {
+        cout << ".";
+      }
+    }
+    cout << newl;
+  }
 }

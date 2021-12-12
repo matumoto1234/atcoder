@@ -66,6 +66,13 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin>>n;
+  string s;
+  cin >> s;
+
+  if (s.back() == 's')
+    s += "es";
+  else
+    s += "s";
+
+  cout << s << endl;
 }

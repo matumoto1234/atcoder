@@ -66,6 +66,58 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin>>n;
+  int n, k;
+  cin >> n >> k;
+
+  vector<pll> wp(n);
+  for (auto &[w, p]: wp) {
+    cin >> w >> p;
+  }
+
+  vector<pll> solt_water(n);
+  rep(i, n) {
+    auto [w, p] = wp[i];
+    auto &[solt, water] = solt_water[i];
+
+    water = w;
+    solt = p * w;
+  }
+
+  auto dp = make_vector(n + 1, k + 1, pll(-INF32, 1));
+  dp[0][0].first = 0;
+  dp[0][0].second = 0;
+
+  // rep(i, n + 1) {
+  //   dp[i][0].first = 0;
+  //   dp[i][0].second = 0;
+  // }
+
+  rep(i, n) {
+    rep(j, k + 1) {
+      if (j + 1 <= k) {
+        auto [solt, water] = dp[i][j];
+        auto &[solt2, water2] = dp[i + 1][j + 1];
+
+        solt += solt_water[i].first;
+        water += solt_water[i].second;
+
+        if (solt * water2 > solt2 * water) {
+          solt2 = solt;
+          water2 = water;
+        }
+      }
+      {
+        const auto &[solt, water] = dp[i][j];
+        auto &[solt2, water2] = dp[i + 1][j];
+        if (solt * water2 > solt2 * water) {
+          solt2 = solt;
+          water2 = water;
+        }
+      }
+    }
+  }
+
+  auto [solt, water] = dp[n][k];
+  // debug(solt, water);
+  cout << (double)solt / water << endl;
 }

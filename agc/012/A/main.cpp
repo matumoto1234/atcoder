@@ -67,5 +67,36 @@ constexpr char newl = '\n';
 
 int main() {
   int n;
-  cin>>n;
+  cin >> n;
+
+  vector<int> as(3 * n);
+  cin >> as;
+
+  rwhole(sort, as);
+
+  ll ans = 0;
+
+  rep(i, 1, 2 * n, 2) { ans += as[i]; }
+
+  cout << ans << endl;
 }
+
+/*
+すべてのチームの大きさを上げたい
+
+1,2,3,4,5,6のとき
+
+1,5,6
+2,3,4
+=> 8
+
+1,3,5,
+2,4,6,
+=> 7
+
+大きい方から奇数番目をN人
+小さい順に入れるのはあってそう
+1,5,6
+2,3,4
+
+*/

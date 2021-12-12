@@ -64,8 +64,75 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
+namespace math {
+  using namespace std;
+  using ll = long long;
+} // namespace math
+
+
+namespace math {
+  ll extgcd(ll a, ll b, ll &x, ll &y) {
+    if (b == 0) {
+      x = 1;
+      y = 0;
+      return a;
+    }
+    ll d = extgcd(b, a % b, y, x);
+    y = y - (a / b) * x;
+    return d;
+  }
+} // namespace math
+
+#include <cassert>
+#include <numeric>
+
+namespace math {
+  // verify:AOJ_NTL_1_B
+  ll power(ll a, ll e, ll p = -1) {
+    assert(p != 0);
+    assert(p >= -1);
+
+    if (e < 0) {
+      assert(p != -1 and gcd(a, p) == 1);
+      ll x, y;
+      extgcd(a, p, x, y);
+      a = (x % p + p) % p;
+      e *= -1;
+    }
+
+    ll res = 1;
+    while (e > 0) {
+      if (e & 1) {
+        res *= a;
+        if (p != -1) res %= p;
+      }
+      a *= a;
+      if (p != -1) a %= p;
+      e >>= 1;
+    }
+    return res;
+  }
+} // namespace math
+
+using namespace math;
+
+ll harmonic_floor_sum(ll n) {
+  ll sum = 0;
+
+  for (ll i = 1; i * i <= n; i++) {
+    sum += n / i;
+  }
+
+  sum *= 2;
+  ll floor_sqrt = sqrt(n);
+  sum -= floor_sqrt * floor_sqrt;
+
+  return sum;
+}
 
 int main() {
-  int n;
-  cin>>n;
+  ll n;
+  cin >> n;
+
+  cout << harmonic_floor_sum(n) << endl;
 }

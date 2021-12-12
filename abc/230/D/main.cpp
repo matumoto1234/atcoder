@@ -66,6 +66,43 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin>>n;
+  int n, d;
+  cin >> n >> d;
+
+  vector<pii> lrs(n);
+  for (auto &[l, r]: lrs) {
+    cin >> l >> r;
+  }
+
+  vector<pii> l_idxs, r_idxs;
+  rep(i, n) {
+    auto [l, r] = lrs[i];
+    l_idxs.emplace_back(l, i);
+    r_idxs.emplace_back(r, i);
+  }
+
+  whole(sort, r_idxs);
+  whole(sort, l_idxs);
+
+  int li = 0;
+  map<int, bool> used;
+
+  int ans = 0;
+
+  rep(i, n) {
+    auto [r, idx] = r_idxs[i];
+
+    if (used[idx]) continue;
+
+    rep(j, li, n) {
+      auto [l, use_idx] = l_idxs[j];
+      if (l > r + d - 1) break;
+      used[use_idx] = true;
+      li = j;
+    }
+
+    ans++;
+  }
+
+  cout << ans << endl;
 }

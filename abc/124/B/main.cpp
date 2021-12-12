@@ -67,5 +67,20 @@ constexpr char newl = '\n';
 
 int main() {
   int n;
-  cin>>n;
+  cin >> n;
+  vector<int> hs(n);
+  cin >> hs;
+
+  int ans = 0;
+
+  rep(i, n) {
+    bool valid = true;
+    rep(j, i) {
+      if (hs[j] > hs[i]) valid = false;
+    }
+
+    ans += valid;
+  }
+
+  cout << ans << endl;
 }

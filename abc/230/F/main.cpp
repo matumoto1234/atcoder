@@ -68,4 +68,9 @@ constexpr char newl = '\n';
 int main() {
   int n;
   cin>>n;
+
+  vector<int> as(n);
+  cin>>as;
+
+  
 }

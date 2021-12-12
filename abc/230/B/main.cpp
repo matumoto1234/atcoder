@@ -63,9 +63,36 @@ constexpr char newl = '\n';
 
 // }}} Templates
 
+namespace library_string {
+  using namespace std;
+}
 
+#include <string>
+
+namespace library_string {
+  string substr(const string &s, int l, int r) {
+    string res = "";
+    for (int i = l; i < r; i++) {
+      res += s[i];
+    }
+    return res;
+  }
+} // namespace library_string
+using namespace library_string;
 
 int main() {
-  int n;
-  cin>>n;
+  string s;
+  cin >> s;
+
+  string t = "oxx";
+  rep(i, 1e5) { t += "oxx"; }
+
+  bool ans = false;
+
+  rep(i, len(t)) {
+    if (i + len(s) > len(t)) break;
+    if (substr(t, i, i + len(s)) == s) { ans = true; }
+  }
+
+  cout << (ans ? "Yes" : "No") << endl;
 }

@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#include <boost/dynamic_bitset.hpp>
+using namespace boost;
+
 // {{{ Templates
 
 // clang-format off
@@ -64,8 +67,63 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
+int n;
+int ans = INF32;
+dynamic_bitset<> bit;
+vector<dynamic_bitset<>> cps;
+
+void dfs(int idx) {
+  if (idx == n or ans <= idx) return;
+
+  rrep(i, n) {
+    dynamic_bitset<> tmp = (cps[i] | bit);
+    if (tmp.all()) {
+      chmin(ans, idx + 1);
+      return;
+    }
+    swap(bit, tmp);
+    dfs(idx + 1);
+    swap(bit, tmp);
+  }
+}
+
 
 int main() {
-  int n;
-  cin>>n;
+  string s;
+  cin >> s;
+
+  n = len(s);
+
+  bit.resize(n);
+
+  rep(i, n) {
+    if (s[i] == 'o')
+      bit[i] = 1;
+    else
+      bit[i] = 0;
+  }
+
+  if (bit.all()) {
+    cout << 1 << endl;
+    return 0;
+  }
+
+  if (bit.count() == 1) {
+    cout << n << endl;
+    return 0;
+  }
+
+  cps.resize(n);
+
+  cps[0] = bit;
+  rep(i, 1, n) {
+    cps[i] = cps[i - 1];
+    int left = cps[i][n - 1];
+    cps[i] <<= 1;
+    cps[i][0] = left;
+  }
+
+  dfs(1);
+
+  cout << ans << endl;
 }

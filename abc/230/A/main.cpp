@@ -67,5 +67,10 @@ constexpr char newl = '\n';
 
 int main() {
   int n;
-  cin>>n;
+  cin >> n;
+
+  if (n >= 42) n++;
+  stringstream ss;
+  ss << setw(3) << setfill('0') << n;
+  cout << "AGC" + ss.str() << endl;
 }
