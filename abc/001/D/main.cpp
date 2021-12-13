@@ -63,29 +63,124 @@ constexpr char newl = '\n';
 
 // }}} Templates
 
-bool is_square(ll n) {
-  if (n < 0) return false;
-  if (n == 0) return true;
-  return ((ll)sqrt(n) * (ll)sqrt(n)) == n;
+
+
+int to_sum_of_minute(int hour, int minute) {
+  return hour * 60 + minute;
 }
 
-void naive(int n) {
-  int ans = 0;
-  for (ll x = 1; x <= n; x++) {
-    for (ll y = 1; y <= n; y++) {
-      if (is_square(x * x - y)) {
-        ans++;
-        // debug(x, y);
+pii to_hour(int sum_of_minute) {
+  return pii(sum_of_minute / 60, sum_of_minute % 60);
+}
+
+namespace data_structure {
+  using namespace std;
+}
+
+#include <tuple>
+#include <vector>
+
+namespace data_structure {
+  template <typename T>
+  struct DynamicImos {
+    vector<T> xs, imos;
+    vector<tuple<T, T, T>> intervals;
+
+    DynamicImos() {}
+
+    // [l, r)
+    void add(T l, T r, T v) {
+      intervals.emplace_back(l, r, v);
+      xs.emplace_back(l);
+      xs.emplace_back(r);
+    }
+
+    void build() {
+      sort(xs.begin(), xs.end());
+      xs.erase(unique(xs.begin(), xs.end()), xs.end());
+      imos.assign(xs.size(), 0);
+
+      for (auto [l, r, v]: intervals) {
+        l = lower_bound(xs.begin(), xs.end(), l) - xs.begin();
+        r = lower_bound(xs.begin(), xs.end(), r) - xs.begin();
+        imos[l] += v;
+        imos[r] -= v;
+      }
+
+      for (int i = 1; i < static_cast<int>(imos.size()); i++) {
+        imos[i] += imos[i - 1];
       }
     }
-  }
-  // debug(n, ans);
-  cout << ans << newl;
-}
+
+    // vector<[l,r), value>
+    vector<pair<pair<T, T>, T>> interval_values() {
+      vector<pair<pair<T, T>, T>> res(xs.size() - 1);
+      for (int i = 0; i < static_cast<int>(xs.size()) - 1; i++) {
+        T l = xs[i];
+        T r = xs[i + 1];
+        T v = imos[i];
+        res[i] = pair(pair(l, r), v);
+      }
+      return res;
+    }
+
+    // vector<[l,r)>
+    // e.g. <[0,3),3>, <[1,2),1>, <[5,6), 1> => <[0,3)>, <[5,6)>
+    vector<pair<T, T>> continuous_intervals() {
+      T last = xs[0];
+      vector<pair<T, T>> res;
+      auto ivs = interval_values();
+      if (static_cast<int>(ivs.size()) == 1) {
+        res.emplace_back(ivs[0].first);
+        return res;
+      }
+      for (int i = 0; i < static_cast<int>(ivs.size()) - 1; i++) {
+        auto [interval, value] = ivs[i];
+        if (value == 0) {
+          auto [l, r] = interval;
+          res.emplace_back(last, l);
+          last = r;
+        }
+      }
+      if (res.back().second != last) res.emplace_back(last, ivs.back().first.second);
+      return res;
+    }
+  };
+} // namespace data_structure
+using namespace data_structure;
+
 
 int main() {
   int n;
   cin >> n;
 
-  rep(i, 1, n + 1) { naive(i); }
+  DynamicImos<int> imos;
+
+  rep(i, n) {
+    int s, e;
+    cin >> s;
+    cin.ignore(numeric_limits<streamsize>::max(), '-');
+    cin >> e;
+
+    int l = to_sum_of_minute(s / 100, s % 100);
+    int r = to_sum_of_minute(e / 100, e % 100);
+
+    l -= l % 5;
+    r += (r % 5 == 0 ? 0 : 5 - r % 5);
+
+    r++;
+
+    imos.add(l, r, 1);
+  }
+
+  imos.build();
+
+  auto continuous_intervals = imos.continuous_intervals();
+  for (auto [l, r]: continuous_intervals) {
+    r--;
+    pii s = to_hour(l);
+    pii e = to_hour(r);
+
+    printf("%02d%02d-%02d%02d\n", s.first, s.second, e.first, e.second);
+  }
 }
