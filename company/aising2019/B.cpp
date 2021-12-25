@@ -69,38 +69,24 @@ int main() {
   int n;
   cin >> n;
 
-  vector<int> as(n);
-  cin >> as;
+  int a, b;
+  cin >> a >> b;
 
-  if (n == 1) {
-    cout << as[0] << endl;
-    return 0;
+  vector<int> ps(n);
+  cin >> ps;
+
+  int left = 0, mid = 0, right = 0;
+  for (auto p: ps) {
+    left += p <= a;
   }
 
-  // 仕切りの数
-  int m = n - 1;
-
-  int ans = INF32;
-
-  rep(i, 1, 1 << m) {
-    vector<int> or_values;
-    int accum_or = 0;
-    rep(j, m) {
-      accum_or |= as[j];
-      if (i >> j & 1) {
-        or_values.push_back(accum_or);
-        accum_or = 0;
-      }
-    }
-
-    accum_or |= as.back();
-    or_values.push_back(accum_or);
-
-    int xor_value = or_values[0];
-    rep(i, 1, len(or_values)) { xor_value ^= or_values[i]; }
-
-    chmin(ans, xor_value);
+  for (auto p: ps) {
+    mid += a < p and p <= b;
   }
 
-  cout << ans << endl;
+  for (auto p: ps) {
+    right += b < p;
+  }
+
+  cout << min({ left, mid, right }) << endl;
 }

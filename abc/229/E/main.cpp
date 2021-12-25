@@ -25,9 +25,9 @@ template <typename T1, typename T2> ostream &operator<<(ostream &os, const pair<
 template <typename T1, typename T2> ostream &operator<<(ostream &os, const map<T1, T2> &v) { bool is_first = true; for (auto x: v) { os << (is_first ? "" : " ") << x; is_first = false; } return os; }
 template <typename T> ostream &operator<<(ostream &os, queue<T> v) { bool is_first = true; while (!v.empty()) { os << (is_first?"":" ")<<v.front(); v.pop(); is_first = false; } return os; }
 template <typename T> ostream &operator<<(ostream &os, stack<T> v) { bool is_first = true; while (!v.empty()) { os << (is_first?"":" ") << v.top(); v.pop(); is_first=false; } return os; }
-template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) { rep (i, len(v)) cout << v[i] << (i == len(v) - 1 ? "" : " "); return os; }
-template <typename T> ostream &operator<<(ostream &os, const vector<vector<T>> &v) { for (const auto &vec: v) { cout << vec << '\n'; } return os; }
-template <typename T> ostream &operator<<(ostream &os, const deque<T> &v) { rep (i, len(v)) cout << v[i] << (i == len(v) - 1 ? "" : " "); return os; }
+template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) { rep (i, len(v)) os << v[i] << (i == len(v) - 1 ? "" : " "); return os; }
+template <typename T> ostream &operator<<(ostream &os, const vector<vector<T>> &v) { for (const auto &vec: v) { os << vec << '\n'; } return os; }
+template <typename T> ostream &operator<<(ostream &os, const deque<T> &v) { rep (i, len(v)) os << v[i] << (i == len(v) - 1 ? "" : " "); return os; }
 template <typename T> ostream &operator<<(ostream &os, const set<T> &v) { bool is_first = true; for (T x: v) { os << (is_first ? "" : " ") << x; is_first = false; } return os; }
 template <typename T> istream &operator>>(istream &is, vector<T> &v) { for (T &in: v) { is >> in; } return is; }
 
@@ -63,34 +63,33 @@ constexpr char newl = '\n';
 
 // }}} Templates
 
+
 namespace data_structure {
   using namespace std;
 }
 
 #include <map>
 #include <numeric>
+#include <stack>
+#include <tuple>
 #include <vector>
 
 namespace data_structure {
-  template <typename T>
-  class UnionFind {
+  // 経路圧縮なし
+  class UnionFindUndo {
+  private:
     int grp_cnt, merge_cnt;
     vector<int> siz, par;
-    vector<T> val;
+    stack<tuple<int, int, int>> history;
 
   public:
-    UnionFind(int N): grp_cnt(N), merge_cnt(0), siz(N, 1), par(N), val(N, 0) { iota(par.begin(), par.end(), 0); }
-    UnionFind(int N, T init): grp_cnt(N), merge_cnt(0), siz(N, 1), par(N), val(N, init) { iota(par.begin(), par.end(), 0); }
+    UnionFindUndo(int N): grp_cnt(N), merge_cnt(0), siz(N, 1), par(N) { iota(par.begin(), par.end(), 0); }
 
     // 根（そのグループの識別番号）
     int root(int x) {
       if (x == par[x]) return x;
-      return par[x] = root(par[x]);
+      return root(par[x]);
     }
-
-    T root_value(int x) { return val[root(x)]; }
-
-    void set_root_value(int x, T v) { val[root(x)] = v; }
 
     // 連結成分の個数
     int group_count() { return grp_cnt; }
@@ -106,16 +105,38 @@ namespace data_structure {
       y = root(y);
       if (x == y) return false;
       if (siz[x] < siz[y]) swap(x, y);
+      history.emplace(make_tuple(x, par[x], siz[x]));
+      history.emplace(make_tuple(y, par[y], siz[y]));
       siz[x] += siz[y];
       par[y] = x;
       grp_cnt--;
       merge_cnt++;
-      if (val[x] == -1) {
-        val[x] = val[y];
-      } else {
-        val[y] = val[x];
-      }
       return true;
+    }
+
+    bool undo() {
+      if (history.empty()) return false;
+      auto [x, x_par, x_siz] = history.top();
+      history.pop();
+      auto [y, y_par, y_siz] = history.top();
+      history.pop();
+
+      par[x] = x_par;
+      siz[x] = x_siz;
+      par[y] = y_par;
+      siz[y] = y_siz;
+      grp_cnt++;
+      return true;
+    }
+
+    void clear_history() {
+      while (!history.empty()) {
+        history.pop();
+      }
+    }
+
+    void all_undo() {
+      while (undo()) {}
     }
 
     // Θ(N)
@@ -135,8 +156,8 @@ namespace data_structure {
     }
 
     // Θ(NlogN)
-    // 2つのUnionFindでi番目の頂点と同じ連結成分であるものの個数(i番目の頂点を含む)
-    vector<int> connect_count(UnionFind tree) {
+    // 2つのunion_findでi番目の頂点と同じ連結成分であるものの個数(i番目の頂点を含む)
+    vector<int> connect_count(UnionFindUndo tree) {
       map<pair<int, int>, int> mp;
 
       int n = par.size();
@@ -153,15 +174,19 @@ namespace data_structure {
       return res;
     }
   };
+
 } // namespace data_structure
+
 using namespace data_structure;
+
 
 int main() {
   int n, m;
   cin >> n >> m;
 
-  vector<pii> edges(m);
+  UnionFindUndo uf(n);
 
+  vector<pii> edges(m);
   for (auto &[a, b]: edges) {
     cin >> a >> b;
 
@@ -172,28 +197,24 @@ int main() {
 
   rwhole(sort, edges);
 
-  UnionFind<int> uf(n);
+  vector<bool> merged(m, false);
 
-  vector<int> ans;
-  ans.emplace_back(0);
+  rep(i, m) {
+    auto [a, b] = edges[i];
 
-  int v = n - 1;
-  int i = 0;
-  while (v > 0) {
-    bool merged = false;
-    while (i < m and v == edges[i].first) {
-      auto [a, b] = edges[i];
-      if(uf.merge(a, b)) merged = true;
-      i++;
-    }
-    // debug(merged, n, v, uf.merge_count());
-    ans.emplace_back((n - v) - uf.merge_count());
-    v--;
+    merged[i] = uf.merge(a, b);
   }
 
-  whole(reverse, ans);
+  whole(sort,edges);
 
-  for (auto a: ans) {
-    cout << a << newl;
+  rep(i, n) {
+    int j = i;
+    while (edges[j].first == i) {
+      if(merged[j]) uf.undo();
+      debug(edges[j],i,j, merged[j]);
+      j++;
+    }
+
+    cout << uf.group_count() - (i + 1) << newl;
   }
 }

@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// {{{ templates
+// {{{ Templates
 
 // clang-format off
 
@@ -25,9 +25,9 @@ template <typename T1, typename T2> ostream &operator<<(ostream &os, const pair<
 template <typename T1, typename T2> ostream &operator<<(ostream &os, const map<T1, T2> &v) { bool is_first = true; for (auto x: v) { os << (is_first ? "" : " ") << x; is_first = false; } return os; }
 template <typename T> ostream &operator<<(ostream &os, queue<T> v) { bool is_first = true; while (!v.empty()) { os << (is_first?"":" ")<<v.front(); v.pop(); is_first = false; } return os; }
 template <typename T> ostream &operator<<(ostream &os, stack<T> v) { bool is_first = true; while (!v.empty()) { os << (is_first?"":" ") << v.top(); v.pop(); is_first=false; } return os; }
-template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) { rep (i, len(v)) cout << v[i] << (i == len(v) - 1 ? "" : " "); return os; }
-template <typename T> ostream &operator<<(ostream &os, const vector<vector<T>> &v) { for (const auto &vec: v) { cout << vec << '\n'; } return os; }
-template <typename T> ostream &operator<<(ostream &os, const deque<T> &v) { rep (i, len(v)) cout << v[i] << (i == len(v) - 1 ? "" : " "); return os; }
+template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) { rep (i, len(v)) os << v[i] << (i == len(v) - 1 ? "" : " "); return os; }
+template <typename T> ostream &operator<<(ostream &os, const vector<vector<T>> &v) { for (const auto &vec: v) { os << vec << '\n'; } return os; }
+template <typename T> ostream &operator<<(ostream &os, const deque<T> &v) { rep (i, len(v)) os << v[i] << (i == len(v) - 1 ? "" : " "); return os; }
 template <typename T> ostream &operator<<(ostream &os, const set<T> &v) { bool is_first = true; for (T x: v) { os << (is_first ? "" : " ") << x; is_first = false; } return os; }
 template <typename T> istream &operator>>(istream &is, vector<T> &v) { for (T &in: v) { is >> in; } return is; }
 
@@ -61,68 +61,8 @@ constexpr char newl = '\n';
 
 // clang-format on
 
-// }}} templates
+// }}} Templates
 
-
-namespace data_structure {
-  using namespace std;
-}
-
-#include <vector>
-
-namespace data_structure {
-  // verify:ARC033_C
-  template <typename T>
-  class FenwickTree {
-  private:
-    int n;
-    vector<T> dat;
-
-    // [1,r]
-    T sum(int r) {
-      T res = 0;
-      for (int k = r; k > 0; k -= (k & -k)) {
-        res += dat[k];
-      }
-      return res;
-    }
-
-  public:
-    FenwickTree(int n_): n(n_ + 2), dat(n_ + 2, 0) {}
-
-    // i:0-indexed
-    void add(int i, T x) {
-      for (int k = ++i; k < n; k += (k & -k)) {
-        dat[k] += x;
-      }
-    }
-
-    T get(int k) { return dat[++k]; }
-
-    // [l,r)
-    T sum(int l, int r) { return sum(r) - sum(l); }
-
-    // min({x | sum(x) >= w})
-    int lower_bound(T w) {
-      if (w <= 0) return 0;
-      int x = 0, twopow = 1;
-      while (twopow < n) {
-        twopow <<= 1;
-      }
-      for (int sz = twopow; sz > 0; sz >>= 1) {
-        if (x + sz <= n and dat[x + sz] < w) {
-          w -= dat[x + sz];
-          x += sz;
-        }
-      }
-      return x;
-    }
-
-    // min({x | sum(x) > w})
-    int upper_bound(T w) { return lower_bound(w + 1); }
-  };
-} // namespace data_structure
-using namespace data_structure;
 
 namespace tools {
   using namespace std;
@@ -175,7 +115,65 @@ namespace tools {
     const T &operator[](int k) const { return xs[k]; }
   };
 } // namespace tools
-using namespace tools;
+
+namespace data_structure {
+  using namespace std;
+}
+
+#include <vector>
+
+namespace data_structure {
+  // verify:ARC033_C
+  template <typename T>
+  class FenwickTree {
+  private:
+    int n;
+    vector<T> dat;
+
+    // [1,r]
+    T sum(int r) {
+      T res = 0;
+      for (int k = r; k > 0; k -= (k & -k)) {
+        res += dat[k];
+      }
+      return res;
+    }
+
+  public:
+    FenwickTree(int n_): n(n_ + 2), dat(n_ + 2, 0) {}
+
+    // i:0-indexed
+    void add(int i, T x) {
+      for (int k = ++i; k < n; k += (k & -k)) {
+        dat[k] += x;
+      }
+    }
+
+    T get(int k) { return dat[++k]; }
+
+    // [l,r)
+    T sum(int l, int r) { return sum(r) - sum(l); }
+
+    // min({x | sum(x) >= w})
+    int lower_bound(T w) {
+      if (w <= 0) return 0;
+      int x = 0, twopow = 1;
+      while (twopow < n) {
+        twopow <<= 1;
+      }
+      for (int sz = twopow; sz > 0; sz >>= 1) {
+        if (x + sz < n and dat[x + sz] < w) {
+          w -= dat[x + sz];
+          x += sz;
+        }
+      }
+      return x;
+    }
+
+    // min({x | sum(x) > w})
+    int upper_bound(T w) { return lower_bound(w + 1); }
+  };
+} // namespace data_structure
 
 namespace math {
   using namespace std;
@@ -187,47 +185,51 @@ namespace math {
 namespace math {
   ll ceil_div(ll n, ll d) {
     assert(d != 0);
-    return n / d + ((n ^ d >= 0) and (n % d));
+    return n / d + (((n ^ d) >= 0) and (n % d));
   }
 } // namespace math
 using namespace math;
+
+using namespace data_structure;
+using namespace tools;
+
 
 int main() {
   ll n, d, a;
   cin >> n >> d >> a;
 
-  vector<pll> enemies(n);
-  for (auto &[x, h]: enemies) {
+  Compress<ll> comp;
+
+  vector<ll> xs(n), hs(n);
+
+  rep(i, n) {
+    auto &x = xs[i], &h = hs[i];
     cin >> x >> h;
+
+    comp.add(x);
+    comp.add(x + 1);
+    comp.add(x - 2 * d);
   }
 
-  whole(sort, enemies);
+  comp.build();
 
-  Compress<ll> cs;
+  FenwickTree<ll> ft(comp.xs.size() + 10);
 
-  for (auto [x, h]: enemies) {
-    cs.add(x);
-    cs.add(x + 2 * d);
-  }
-
-  cs.build();
-
-  ll nn = 2 * cs.xs.size();
-  FenwickTree<ll> ft(nn);
   ll ans = 0;
 
-  for (auto [x, h]: enemies) {
-    ll cx = cs.get(x);
-    ll already = ft.sum(cx, nn);
-    h -= already;
+  rep(i, n) {
+    ll x = xs[i], h = hs[i];
 
-    if (h < 0) continue;
+    ll sub = ft.sum(comp.get(x - 2 * d), comp.get(x + 1));
 
-    ll cnt = ceil_div(h, a);
-    ans += cnt;
+    h -= sub;
 
-    ll cx2 = cs.get(x + 2 * d);
-    ft.add(cx2, cnt * a);
+    if (h <= 0) continue;
+
+    ans += ceil_div(h, a);
+
+    ll damage = a * ceil_div(h, a);
+    ft.add(comp.get(x), damage);
   }
 
   cout << ans << endl;

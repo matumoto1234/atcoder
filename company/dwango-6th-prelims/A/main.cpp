@@ -69,38 +69,20 @@ int main() {
   int n;
   cin >> n;
 
-  vector<int> as(n);
-  cin >> as;
-
-  if (n == 1) {
-    cout << as[0] << endl;
-    return 0;
+  vector<pair<string, int>> st(n);
+  for (auto &[s, t]: st) {
+    cin >> s >> t;
   }
 
-  // 仕切りの数
-  int m = n - 1;
+  string x;
+  cin >> x;
 
-  int ans = INF32;
-
-  rep(i, 1, 1 << m) {
-    vector<int> or_values;
-    int accum_or = 0;
-    rep(j, m) {
-      accum_or |= as[j];
-      if (i >> j & 1) {
-        or_values.push_back(accum_or);
-        accum_or = 0;
-      }
-    }
-
-    accum_or |= as.back();
-    or_values.push_back(accum_or);
-
-    int xor_value = or_values[0];
-    rep(i, 1, len(or_values)) { xor_value ^= or_values[i]; }
-
-    chmin(ans, xor_value);
+  bool is_begin = false;
+  ll sum = 0;
+  for (auto [s, t]: st) {
+    if(is_begin) sum += t;
+    if (s == x) { is_begin = true; }
   }
 
-  cout << ans << endl;
+  cout << sum << endl;
 }

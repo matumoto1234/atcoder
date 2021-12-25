@@ -66,40 +66,21 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin >> n;
+  int n, k;
+  cin >> n >> k;
 
-  vector<int> as(n);
-  cin >> as;
+  ll ans = INF64;
 
-  if (n == 1) {
-    cout << as[0] << endl;
-    return 0;
-  }
-
-  // 仕切りの数
-  int m = n - 1;
-
-  int ans = INF32;
-
-  rep(i, 1, 1 << m) {
-    vector<int> or_values;
-    int accum_or = 0;
-    rep(j, m) {
-      accum_or |= as[j];
-      if (i >> j & 1) {
-        or_values.push_back(accum_or);
-        accum_or = 0;
-      }
+  rep(i, (1 << n)) {
+    ll v = 1;
+    rep(j, n) {
+      if (i >> j & 1)
+        v *= 2;
+      else
+        v += k;
     }
 
-    accum_or |= as.back();
-    or_values.push_back(accum_or);
-
-    int xor_value = or_values[0];
-    rep(i, 1, len(or_values)) { xor_value ^= or_values[i]; }
-
-    chmin(ans, xor_value);
+    chmin(ans, v);
   }
 
   cout << ans << endl;

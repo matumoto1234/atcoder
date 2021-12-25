@@ -63,44 +63,32 @@ constexpr char newl = '\n';
 
 // }}} Templates
 
+vector<vector<int>> G;
 
+int to_v(int h, int y, int x) {
+  return y * h + x;
+}
 
 int main() {
-  int n;
-  cin >> n;
-
-  vector<int> as(n);
-  cin >> as;
-
-  if (n == 1) {
-    cout << as[0] << endl;
-    return 0;
+  int h, w;
+  cin >> h >> w;
+  vector<string> s(h + 1);
+  rep(i, h) {
+    cin >> s[i];
+    s[i] += "A";
   }
 
-  // 仕切りの数
-  int m = n - 1;
 
-  int ans = INF32;
-
-  rep(i, 1, 1 << m) {
-    vector<int> or_values;
-    int accum_or = 0;
-    rep(j, m) {
-      accum_or |= as[j];
-      if (i >> j & 1) {
-        or_values.push_back(accum_or);
-        accum_or = 0;
-      }
-    }
-
-    accum_or |= as.back();
-    or_values.push_back(accum_or);
-
-    int xor_value = or_values[0];
-    rep(i, 1, len(or_values)) { xor_value ^= or_values[i]; }
-
-    chmin(ans, xor_value);
+  auto dp = make_vector(h + 1, w + 1, -INF32);
+  dp[0][0] = 1;
+  rep(i, h) rep(j, w) {
+    if (s[i + 1][j] == '.') chmax(dp[i + 1][j], dp[i][j] + 1);
+    if (s[i][j + 1] == '.') chmax(dp[i][j + 1], dp[i][j] + 1);
   }
+
+  int ans = -INF32;
+
+  rep(i, h) rep(j, w) chmax(ans, dp[i][j]);
 
   cout << ans << endl;
 }

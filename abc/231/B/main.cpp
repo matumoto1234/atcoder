@@ -64,43 +64,28 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
+char encode(char c, int k) {
+  int n = c - 'a';
+  n += k;
+  n %= 26;
+  return n + 'a';
+}
+
 
 int main() {
-  int n;
-  cin >> n;
+  string s, t;
+  cin >> s >> t;
 
-  vector<int> as(n);
-  cin >> as;
+  string copy_s = s;
 
-  if (n == 1) {
-    cout << as[0] << endl;
-    return 0;
+  bool ans = false;
+
+  rep(i, 26) {
+    s = copy_s;
+    rep(j, len(s)) s[j] = encode(s[j], i);
+
+    if (s == t) ans = true;
   }
 
-  // 仕切りの数
-  int m = n - 1;
-
-  int ans = INF32;
-
-  rep(i, 1, 1 << m) {
-    vector<int> or_values;
-    int accum_or = 0;
-    rep(j, m) {
-      accum_or |= as[j];
-      if (i >> j & 1) {
-        or_values.push_back(accum_or);
-        accum_or = 0;
-      }
-    }
-
-    accum_or |= as.back();
-    or_values.push_back(accum_or);
-
-    int xor_value = or_values[0];
-    rep(i, 1, len(or_values)) { xor_value ^= or_values[i]; }
-
-    chmin(ans, xor_value);
-  }
-
-  cout << ans << endl;
+  cout << (ans ? "Yes" : "No") << endl;
 }

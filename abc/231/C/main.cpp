@@ -66,41 +66,42 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin >> n;
-
-  vector<int> as(n);
-  cin >> as;
-
-  if (n == 1) {
-    cout << as[0] << endl;
-    return 0;
+  int n, m;
+  cin >> n >> m;
+  vector<pii> ab(m), cd(m);
+  for (auto &[a, b]: ab) {
+    cin >> a >> b;
+    a--, b--;
+  }
+  for (auto &[c, d]: cd) {
+    cin >> c >> d;
+    c--, d--;
   }
 
-  // 仕切りの数
-  int m = n - 1;
+  vector<int> p(n);
+  whole(iota, p, 0);
 
-  int ans = INF32;
+  bool ans = false;
 
-  rep(i, 1, 1 << m) {
-    vector<int> or_values;
-    int accum_or = 0;
-    rep(j, m) {
-      accum_or |= as[j];
-      if (i >> j & 1) {
-        or_values.push_back(accum_or);
-        accum_or = 0;
+  do {
+    rep(i, n) {
+      bool valid = true;
+      rep(j, n) {
+        bool found1 = false, found2 = false;
+        for (const auto &[a, b]: ab) {
+          if (i == a and j == b) found1 = true;
+        }
+        for (const auto &[c, d]: cd) {
+          if (p[i] == c and p[j] == d) found2 = true;
+        }
+        if (not found1 or not found2) {
+          valid = false;
+          break;
+        }
       }
+      if (valid) ans = true;
     }
+  } while (whole(next_permutation, p));
 
-    accum_or |= as.back();
-    or_values.push_back(accum_or);
-
-    int xor_value = or_values[0];
-    rep(i, 1, len(or_values)) { xor_value ^= or_values[i]; }
-
-    chmin(ans, xor_value);
-  }
-
-  cout << ans << endl;
+  cout << (ans ? "Yes" : "No") << endl;
 }

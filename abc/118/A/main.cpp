@@ -66,41 +66,22 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin >> n;
+  ll t, n;
+  cin >> t >> n;
 
-  vector<int> as(n);
-  cin >> as;
-
-  if (n == 1) {
-    cout << as[0] << endl;
-    return 0;
+  ll valid = INF64 / t;
+  ll invalid = 0;
+  auto is_valid = [&](ll m) {
+    ll count = t * m / 100;
+    return count >= n;
+  };
+  while (abs(valid - invalid) > 1) {
+    ll mid = (valid + invalid) / 2;
+    if (is_valid(mid))
+      valid = mid;
+    else
+      invalid = mid;
   }
 
-  // 仕切りの数
-  int m = n - 1;
-
-  int ans = INF32;
-
-  rep(i, 1, 1 << m) {
-    vector<int> or_values;
-    int accum_or = 0;
-    rep(j, m) {
-      accum_or |= as[j];
-      if (i >> j & 1) {
-        or_values.push_back(accum_or);
-        accum_or = 0;
-      }
-    }
-
-    accum_or |= as.back();
-    or_values.push_back(accum_or);
-
-    int xor_value = or_values[0];
-    rep(i, 1, len(or_values)) { xor_value ^= or_values[i]; }
-
-    chmin(ans, xor_value);
-  }
-
-  cout << ans << endl;
+  cout << valid + (valid * t / 100) - 1 << endl;
 }

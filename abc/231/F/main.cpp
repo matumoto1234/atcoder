@@ -66,41 +66,21 @@ constexpr char newl = '\n';
 
 
 int main() {
-  int n;
-  cin >> n;
+  ll n,x,y;
+  cin>>n>>x>>y;
+  vector<ll> as(n),bs(n);
+  cin>>as>>bs;
 
-  vector<int> as(n);
-  cin >> as;
+  vector<int> idxs(n);
+  whole(iota,idxs,0);
+  do{
+    ll sum = 0;
+    rep(i,n){
+      int idx = idxs[i];
 
-  if (n == 1) {
-    cout << as[0] << endl;
-    return 0;
-  }
-
-  // 仕切りの数
-  int m = n - 1;
-
-  int ans = INF32;
-
-  rep(i, 1, 1 << m) {
-    vector<int> or_values;
-    int accum_or = 0;
-    rep(j, m) {
-      accum_or |= as[j];
-      if (i >> j & 1) {
-        or_values.push_back(accum_or);
-        accum_or = 0;
-      }
+      sum+=abs(as[idx]-bs[idx]);
     }
 
-    accum_or |= as.back();
-    or_values.push_back(accum_or);
-
-    int xor_value = or_values[0];
-    rep(i, 1, len(or_values)) { xor_value ^= or_values[i]; }
-
-    chmin(ans, xor_value);
-  }
-
-  cout << ans << endl;
+    sum*x
+  }while(whole(next_permutation, idxs));
 }
