@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#include <atcoder/maxflow.hpp>
+using namespace atcoder;
+
 // {{{ Templates
 
 // clang-format off
@@ -64,14 +67,41 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
-}
-
 
 int main() {
-  int n, m;
-  cin >> n >> m;
+  int n, k;
+  cin >> n >> k;
 
-  vector<string> s(n);
-  cin >> s;
+  vector<int> as(n), bs(n);
+  cin >> as >> bs;
+
+  mf_graph<int> G(2 * n + 2);
+
+  int src = 2 * n;
+  int sink = 2 * n + 1;
+
+  G.add_edge(src, 0, 1);
+  G.add_edge(src, n + 0, 1);
+
+  G.add_edge(n - 1, sink, 1);
+  G.add_edge(2 * n - 1, sink, 1);
+
+  rep(i, n - 1) {
+    if (abs(as[i] - as[i + 1]) <= k) {
+      G.add_edge(i, i + 1, 1);
+    }
+    if (abs(as[i] - bs[i + 1]) <= k) {
+      G.add_edge(i, n + i + 1, 1);
+    }
+    if (abs(bs[i] - as[i + 1]) <= k) {
+      G.add_edge(n + i, i + 1, 1);
+    }
+    if (abs(bs[i] - bs[i + 1]) <= k) {
+      G.add_edge(n + i, n + i + 1, 1);
+    }
+  }
+
+  bool ans = G.flow(src, sink) >= 1;
+
+  cout << (ans ? "Yes" : "No") << endl;
 }

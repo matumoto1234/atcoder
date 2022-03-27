@@ -64,14 +64,34 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
+bool all_different(string s, string t) {
+  rep(i, len(s)) {
+    if (s[i] == t[i])
+      return false;
+  }
+  return true;
 }
 
 
 int main() {
-  int n, m;
-  cin >> n >> m;
+  char s1, s2, s3;
+  cin >> s1 >> s2 >> s3;
 
-  vector<string> s(n);
-  cin >> s;
+  char t1, t2, t3;
+  cin >> t1 >> t2 >> t3;
+
+  string s = ""s + s1 + s2 + s3;
+  string t = ""s + t1 + t2 + t3;
+
+  if (s == t) {
+    cout << "Yes" << endl;
+    return 0;
+  }
+
+  if (all_different(s, t)) {
+    cout << "Yes" << endl;
+    return 0;
+  }
+
+  cout << "No" << endl;
 }

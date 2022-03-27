@@ -53,8 +53,8 @@ using pii = pair<int, int>;
 // Literals
 constexpr ll INF64 = INT64_MAX / 2;
 constexpr int INF32 = INT32_MAX / 2;
-constexpr int dy[] = { 0, 1, -1, 0, -1, 1, -1, 1 };
-constexpr int dx[] = { 1, 0, 0, -1, -1, -1, 1, 1 };
+constexpr int dy[] = { 0, -1, 1, 0, -1, 1, -1, 1 };
+constexpr int dx[] = { -1, 0, 0, 1, -1, -1, 1, 1 };
 constexpr int mod998244353 = 998244353;
 constexpr int mod1000000007 = static_cast<int>(1e9) + 7;
 constexpr char newl = '\n';
@@ -64,14 +64,12 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
-}
-
 
 int main() {
-  int n, m;
-  cin >> n >> m;
+  int k;
+  cin >> k;
+  string ans = "";
+  rep(i, k) ans += "ACL";
 
-  vector<string> s(n);
-  cin >> s;
+  cout << ans << endl;
 }

@@ -64,14 +64,30 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
-}
-
 
 int main() {
-  int n, m;
-  cin >> n >> m;
+  int n;
+  cin >> n;
+  string t;
+  cin >> t;
 
-  vector<string> s(n);
-  cin >> s;
+  int dir = 0;
+  int y = 0, x = 0;
+
+  constexpr int dy[] = { 0, -1, 0, 1 };
+  constexpr int dx[] = { 1, 0, -1, 0 };
+
+  rep(i, n) {
+    if (t[i] == 'S') {
+      y += dy[dir];
+      x += dx[dir];
+      continue;
+    }
+    if (t[i] == 'R') {
+      dir++;
+      dir %= 4;
+    }
+  }
+
+  cout << x << ' ' << y << endl;
 }

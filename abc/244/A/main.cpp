@@ -64,14 +64,11 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
-}
-
 
 int main() {
-  int n, m;
-  cin >> n >> m;
+  int n;
+  string s;
+  cin >> n >> s;
 
-  vector<string> s(n);
-  cin >> s;
+  cout << s[n - 1] << endl;
 }

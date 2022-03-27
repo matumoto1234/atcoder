@@ -63,15 +63,204 @@ constexpr char newl = '\n';
 
 // }}} Templates
 
+namespace tools {
+  template <int m>
+  class ModInt {
+    unsigned int v;
 
-void dfs(int n){
+    static constexpr unsigned int umod() { return m; }
+
+    void static_assertions() const { static_assert(1 <= m); }
+
+    long long extgcd(long long a, long long b, long long &x, long long &y) {
+      if (b == 0) {
+        x = 1;
+        y = 0;
+        return a;
+      }
+      long long d = extgcd(b, a % b, y, x);
+      y -= a / b * x;
+      return d;
+    }
+
+    // pair(g, x), g = gcd(v, umod()), vx = g (mod umod())
+    pair<long long, long long> gcd_inv() const {
+      long long x, y;
+      long long d = extgcd(v, umod(), x, y);
+      return pair(d, x);
+    }
+
+  public:
+    bool has_invalid_value = false;
+    ModInt(): v(0) { static_assertions(); }
+    ModInt(long long x) {
+      static_assertions();
+      if (x == -1) {
+        has_invalid_value = true;
+      }
+      v = ((x % umod()) + umod()) % umod();
+    }
+
+    unsigned int val() const { return v; }
+
+    ModInt &operator++() {
+      v++;
+      if (v == umod())
+        v = 0;
+      return *this;
+    }
+
+    ModInt &operator--() {
+      if (v == 0)
+        v = umod();
+      v--;
+      return *this;
+    }
+
+    ModInt operator++([[maybe_unused]] int unused) {
+      ModInt old = *this;
+      ++*this;
+      return old;
+    }
+
+    ModInt operator--([[maybe_unused]] int unused) {
+      ModInt old = *this;
+      --*this;
+      return old;
+    }
+
+    ModInt &operator+=(const ModInt &rhs) {
+      v += rhs.v;
+      if (v >= umod())
+        v -= umod();
+      return *this;
+    }
+
+    ModInt &operator-=(const ModInt &rhs) {
+      v -= rhs.v;
+      if (v >= umod())
+        v += umod();
+      return *this;
+    }
+
+    ModInt &operator*=(const ModInt &rhs) {
+      unsigned long long z = v;
+      z *= rhs.v;
+      v = z % umod();
+      return *this;
+    }
+
+    ModInt operator/=(const ModInt &rhs) { return *this = *this * rhs.inv(); }
+
+    ModInt operator+() const { return *this; }
+    ModInt operator-() const { return ModInt() - *this; }
+
+    ModInt pow(long long n) const {
+      assert(0 <= n);
+      ModInt x = *this, res = 1;
+      while (n) {
+        if (n & 1)
+          res *= x;
+        x *= x;
+        n >>= 1;
+      }
+      return res;
+    }
+
+    ModInt inv() const {
+      const auto &[g, x] = gcd_inv();
+      assert(g == 1);
+      return x;
+    }
+
+    friend ModInt operator+(const ModInt &lhs, const ModInt &rhs) { return ModInt(lhs) += rhs; }
+
+    friend ModInt operator-(const ModInt &lhs, const ModInt &rhs) { return ModInt(lhs) -= rhs; }
+
+    friend ModInt operator*(const ModInt &lhs, const ModInt &rhs) { return ModInt(lhs) *= rhs; }
+
+    friend ModInt operator/(const ModInt &lhs, const ModInt &rhs) { return ModInt(lhs) /= rhs; }
+
+    friend bool operator==(const ModInt &lhs, const ModInt &rhs) { return lhs.v == rhs.v; }
+
+    friend bool operator!=(const ModInt &lhs, const ModInt &rhs) { return lhs.v != rhs.v; }
+
+    friend istream &operator>>(istream &is, ModInt &rhs) {
+      long long temp;
+      cin >> temp;
+      rhs = ModInt(temp);
+      return is;
+    }
+
+    friend ostream &operator<<(ostream &os, const ModInt &rhs) {
+      os << rhs.val();
+      return os;
+    }
+  };
+} // namespace tools
+using namespace tools;
+
+
+using mint = ModInt<mod998244353>;
+
+
+int n, m, k, s, t, x;
+vector<vector<int>> G;
+constexpr int MAXN = 3000;
+constexpr int MAXK = 3000;
+constexpr int COUNTX = 2;
+mint dp[MAXN][MAXK][COUNTX];
+mint dfs(int v, int depth, int count_x) {
+  if (depth == 0) {
+    if (v == s and count_x == 0)
+      return 1;
+
+    return 0;
+  }
+
+  mint &res = dp[v][depth][count_x];
+  if (not res.has_invalid_value) {
+    return res;
+  }
+  res = 0;
+
+  int next_count = count_x;
+  if (v == x) {
+    next_count++;
+    next_count %= 2;
+  }
+
+  for (auto to: G[v]) {
+    res += dfs(to, depth - 1, next_count);
+  }
+
+  return res;
 }
 
 
 int main() {
-  int n, m;
-  cin >> n >> m;
+  cin >> n >> m >> k >> s >> t >> x;
+  s--, t--, x--;
 
-  vector<string> s(n);
-  cin >> s;
+  G.resize(n);
+
+  rep(i, m) {
+    int u, v;
+    cin >> u >> v;
+
+    u--, v--;
+
+    G[u].push_back(v);
+    G[v].push_back(u);
+  }
+
+  rep(i, MAXN) {
+    rep(j, MAXK) {
+      rep(k, COUNTX) { dp[i][j][k] = -1; }
+    }
+  }
+
+  mint ans = dfs(t, k, 0);
+
+  cout << ans << endl;
 }

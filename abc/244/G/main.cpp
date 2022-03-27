@@ -64,14 +64,74 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
+int n, m;
+vector<vector<int>> G;
+vector<int> vals;
+vector<int> ans;
+bool ans_found = false;
+void dfs(int v, int depth) {
+  ans.push_back(v);
+  if (depth > 4 * n) {
+    return;
+  }
+  vals[v] = (vals[v] + 1) % 2;
+
+  for (auto to: G[v]) {
+    dfs(to, depth + 1);
+  }
+
+  if (not ans_found and depth <= 4 * n) {
+    ans_found = true;
+    for (auto &v: ans)
+      v++;
+    cout << len(ans) << newl;
+    cout << ans << newl;
+  }
+  ans.pop_back();
 }
 
 
 int main() {
-  int n, m;
   cin >> n >> m;
 
-  vector<string> s(n);
+  G.resize(n);
+  vals.resize(n);
+
+  rep(i, m) {
+    int u, v;
+    cin >> u >> v;
+
+    u--, v--;
+
+    G[u].push_back(v);
+    G[v].push_back(u);
+  }
+
+
+  string s;
   cin >> s;
+  rep(i, len(s)) {
+    int val = s[i] - '0';
+
+    vals[i] = val;
+  }
+
+
+  vector<int> starts(n);
+  whole(iota, starts, 0);
+
+  random_device seed_gen;
+  mt19937 engine(seed_gen());
+  whole(shuffle, starts, engine);
+
+  for (auto start: starts) {
+    if (vals[start] == 0) {
+      continue;
+    }
+
+    ans.clear();
+    dfs(start, 0);
+    if (ans_found)
+      break;
+  }
 }

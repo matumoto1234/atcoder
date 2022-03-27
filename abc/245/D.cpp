@@ -64,14 +64,34 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
-}
-
 
 int main() {
-  int n, m;
+  ll n, m;
   cin >> n >> m;
 
-  vector<string> s(n);
-  cin >> s;
+  vector<ll> as(n + 1), cs(n + m + 1);
+  cin >> as >> cs;
+
+  vector<ll> bs(m + 1, 0);
+  bs[m] = cs[n + m] / as[n];
+
+  rrep(i, 0, m) {
+    ll sum = 0;
+
+    if (m > i + n) {
+      rep(j, i + 1, i + n + 1) {
+        sum += as[n - j] * bs[j];
+      }
+    } else {
+      rep(j, i + 1, m + 1) {
+        sum += as[m - j] * bs[j];
+      }
+    }
+
+    // debug(i, cs[i + n], sum, as[n]);
+
+    bs[i] = (cs[i + n] - sum) / as[n];
+  }
+
+  cout << bs << endl;
 }

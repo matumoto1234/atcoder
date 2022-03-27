@@ -64,14 +64,17 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
-}
-
 
 int main() {
-  int n, m;
-  cin >> n >> m;
+  int a, b, c, d;
+  cin >> a >> b >> c >> d;
 
-  vector<string> s(n);
-  cin >> s;
+  int takahashi = a * 60 + b;
+  int aoki = c * 60 + d;
+
+  if (takahashi <= aoki) {
+    cout << "Takahashi" << endl;
+  } else {
+    cout << "Aoki" << endl;
+  }
 }

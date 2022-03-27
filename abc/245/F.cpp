@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#include <atcoder/scc>
+using namespace atcoder;
+
 // {{{ Templates
 
 // clang-format off
@@ -64,14 +67,76 @@ constexpr char newl = '\n';
 // }}} Templates
 
 
-void dfs(int n){
+vector<vector<int>> dag;
+vector<bool> used;
+void dfs(int v) {
+  used[v] = true;
+  for (auto to: dag[v]) {
+    if (used[to])
+      continue;
+
+    dfs(to);
+  }
 }
+
 
 
 int main() {
   int n, m;
   cin >> n >> m;
 
-  vector<string> s(n);
-  cin >> s;
+  vector<vector<int>> G(n);
+  scc_graph scc_G(n);
+
+  rep(i, m) {
+    int u, v;
+    cin >> u >> v;
+
+    u--, v--;
+
+    scc_G.add_edge(u, v);
+    G[u].emplace_back(v);
+  }
+
+  vector<vector<int>> scc = scc_G.scc();
+
+  vector<set<int>> scc_set(len(scc));
+  rep(i, len(scc)) {
+    auto vs = scc[i];
+    for (auto v: vs) {
+      scc_set[i].insert(v);
+    }
+  }
+
+  dag.resize(n);
+  used.assign(n, false);
+  rrep(i, len(scc)) {
+    auto vs = scc[i];
+    for (auto v: vs) {
+      for (auto to: G[v]) {
+        if (scc_set[i].find(to) != scc_set[i].end())
+          continue;
+
+        dag[to].emplace_back(v);
+      }
+    }
+  }
+
+  rep(i, len(scc)) {
+    if (len(scc[i]) == 1)
+      continue;
+
+    for (auto v: scc[i]) {
+      dfs(v);
+    }
+  }
+
+  int ans = 0;
+
+  rep(i, n) {
+    if (used[i])
+      ans++;
+  }
+
+  cout << ans << endl;
 }
